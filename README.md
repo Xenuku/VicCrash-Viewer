@@ -1,15 +1,20 @@
 # Project Name TBD
 
 ## Requirements
-Python PIP installed
+[Python PIP](https://pypi.org/project/pip/) installed
+
 PyQt5 installed, instructions below
 
 ## Installation
-`git clone <link>`
+`git clone https://github.com/eizany/2810_Assignment1.git`
+
 `open terminal/command prompt`
+
 `navigate to the directory from the clone`
+
 **Windows**
 `pip3 install pyqt5`
+
 **Linux**
 `sudo pip3 install pyqt5`
 
