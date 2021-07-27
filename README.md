@@ -5,12 +5,14 @@
 
 PyQt5 installed, instructions below
 
-## Installation
-`git clone https://github.com/eizany/2810_Assignment1.git`
+Git installed
 
+## Installation
 `open terminal/command prompt`
 
-`navigate to the directory from the clone`
+Navigate to a directory of your choosing
+
+`git clone https://github.com/eizany/2810_Assignment1.git`
 
 **Windows**
 `pip3 install pyqt5`
