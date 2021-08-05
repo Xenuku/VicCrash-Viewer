@@ -6,9 +6,9 @@
 ## Requirements
 [Python PIP](https://pypi.org/project/pip/) installed
 
-PyQt5 installed, instructions below
+[PyQt5](https://pypi.org/project/PyQt5/) and [matplotlib](https://matplotlib.org/stable/users/installing.html) installed, instructions below
 
-Git installed
+[Git](https://git-scm.com/) installed
 
 ## Installation
 - Open terminal/command prompt
@@ -17,6 +17,7 @@ Git installed
 
 **Windows**
 - `pip3 install pyqt5` or `pip install pyqt5`
+- `pip3 install matplotlib` or `pip install matplotlib`
 
 **Linux**
 - `sudo pip3 install pyqt5`
