@@ -83,7 +83,7 @@ if __name__ == '__main__':
     import sys
 
     app = QtWidgets.QApplication(sys.argv)
-    app.setApplicationName("Victoria Accidents Viewer")
+    app.setApplicationName("VicCrash Viewer")
 
     main = MainWindow("data/Crash Statistics Victoria.csv")
     main.resize(1200, 800)
