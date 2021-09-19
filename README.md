@@ -1,4 +1,4 @@
-# Project Name TBD
+# VicCrash Viewer
 
 ## Topic
 [Accident Data](https://www.kaggle.com/gaurav896/victoria-state-accident-dataset/)
@@ -11,9 +11,10 @@
 [Git](https://git-scm.com/) installed
 
 ## Installation
+- Install Git and set your login details
 - Open terminal/command prompt
 - Navigate to a directory of your choosing
--`git clone https://github.com/eizany/2810_Assignment1.git`
+-`git clone https://github.com/eizany/2810_Assignment1.git` 
 
 **Windows**
 - `pip3 install pyqt5` or `pip install pyqt5`
@@ -22,4 +23,4 @@
 **Linux**
 - `sudo pip3 install pyqt5`
 
-You are now ready to use `python main.py` or edit the files and push to the repository, make sure to pull first.
+You are now ready to use `python main.py` to run the program so far or edit the files and push to the repository, make sure to pull first.
