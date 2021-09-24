@@ -8,8 +8,7 @@ from functions.user_period import find_data
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
-        #self.data = open('./data/Crash Statistics Victoria.csv', "r")
-        self.data = "hi"
+        self.data = open('./data/Crash Statistics Victoria.csv', "r")
         #window settings
         self.setWindowTitle("VicCrash Viewer")
         self.width = 1500
