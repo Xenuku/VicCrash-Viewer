@@ -1,14 +1,17 @@
-import csv
+import sqlite3
 import matplotlib.pyplot as plt
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QCursor
+from PyQt5.QtGui import QCursor, QPixmap
 from functions.user_period import find_data
+import time
 
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.data = open('./data/Crash Statistics Victoria.csv', "r")
+        # Sleep for 2 seconds to allow the splash screen to be shown THEN load the data
+        self.data = sqlite3.connect('./data/crash.db')
+        
         #window settings
         self.setWindowTitle("VicCrash Viewer")
         self.width = 1500
@@ -210,7 +213,12 @@ class Window(QMainWindow):
         self.tableView = QtWidgets.QTableView(self)
         self.tableView.setMinimumHeight(900)
         self.tableView.setModel(self.model)
-        for row in csv.reader(self.data):
+        cursor = self.data.cursor()
+        alldata = cursor.execute("SELECT * FROM crashdata")
+        # Set the headers - we could manually name them to look nicer, but atm they're just
+        # Grabbing column names from DB
+        self.model.setHorizontalHeaderLabels(description[0] for description in cursor.description)
+        for row in alldata.fetchall():
             items = [
                 QtGui.QStandardItem(field)
                 for field in row
@@ -262,7 +270,7 @@ class Window(QMainWindow):
     # Functions #
     #############
     def homePagePerformSearch(self):
-        find_data(self.start_date_input.date(), self.end_date_input.date(), self.keyword_search_input.text())
+        find_data(self.start_date_input.date(), self.end_date_input.date(), self.keyword_search_input.text(), self.data)
 
 
 ###########################
@@ -270,9 +278,14 @@ class Window(QMainWindow):
 ###########################
 if __name__ == '__main__':
     import sys
-
     app = QtWidgets.QApplication(sys.argv)
+    pixmap = QPixmap('data/logo.jpg').scaled(400, 400)
+    splash = QSplashScreen(pixmap)
+    splash.show()
+
     mainApp = Window()
+    splash.finish(mainApp)
+    
     mainApp.setStyleSheet("""
         QMainWindow {
             background-color: rgb(45, 57, 69);
