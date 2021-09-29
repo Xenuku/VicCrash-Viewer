@@ -24,7 +24,7 @@ class Window(QMainWindow):
 
         # Logo (needs replacing with better quality)
         self.logo_label = QLabel(self)
-        self.logo = QtGui.QPixmap('./data/logo.jpg')
+        self.logo = QtGui.QPixmap('./data/logo.png').scaled(320, 230)
         self.logo_label.setPixmap(self.logo)
         
         # Sidebar buttons, styled in setupUI
@@ -217,7 +217,7 @@ class Window(QMainWindow):
         alldata = cursor.execute("SELECT * FROM crashdata")
         # Set the headers - we could manually name them to look nicer, but atm they're just
         # Grabbing column names from DB
-        self.model.setHorizontalHeaderLabels(description[0] for description in cursor.description)
+        self.model.setHorizontalHeaderLabels(description[0].replace("ACCIDENT_", "") for description in cursor.description)
         for row in alldata.fetchall():
             items = [
                 QtGui.QStandardItem(field)
@@ -279,7 +279,7 @@ class Window(QMainWindow):
 if __name__ == '__main__':
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    pixmap = QPixmap('data/logo.jpg').scaled(400, 400)
+    pixmap = QPixmap('data/logo.png').scaled(400, 400)
     splash = QSplashScreen(pixmap)
     splash.show()
 
