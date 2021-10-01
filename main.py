@@ -159,7 +159,7 @@ class Window(QMainWindow):
         self.start_date_input_box = QGroupBox("Start Date")
         # Calendar input, will get date for search
         self.start_date_input = QDateEdit(calendarPopup=True)
-        self.start_date_input.setDateTime(QtCore.QDateTime.currentDateTime())
+        self.start_date_input.setDate(QtCore.QDate(2013, 7, 1))
         # "Label"
         self.start_date_layout = QVBoxLayout(self.start_date_input_box)
         self.start_date_layout.addStretch(2)
@@ -174,7 +174,7 @@ class Window(QMainWindow):
         # The end date label and input, need to set a 'max' date from the data
         self.end_date_input_box = QGroupBox("End Date")
         self.end_date_input = QDateEdit(calendarPopup=True)
-        self.end_date_input.setDateTime(QtCore.QDateTime.currentDateTime())
+        self.end_date_input.setDate(QtCore.QDate(2019, 3, 21))
         self.end_date_layout = QVBoxLayout(self.end_date_input_box)
         self.end_date_layout.addStretch(2)
         self.end_date_input_box.setLayout(self.end_date_layout)

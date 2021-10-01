@@ -6,7 +6,10 @@ def find_data(start_date, end_date, search_term, data):
     enddate = end_date.toString('yyyy-MM-dd')
     c = data.cursor()
     data.set_trace_callback(print)
-    c.execute(f"select * from crashdata WHERE date(accident_date) BETWEEN date('{startdate}') and date('{enddate}')")
+    if len(search_term) > 0:
+        c.execute(f"select * from crashdata WHERE date(accident_date) BETWEEN date('{startdate}') AND date('{enddate}' AND WHERE a)")
+    else:
+        c.execute(f"select * from crashdata WHERE date(accident_date) BETWEEN date('{startdate}') AND date('{enddate}')")
     print(len(c.fetchall()))
 
     # debug to check inputs
