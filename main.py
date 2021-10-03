@@ -4,47 +4,50 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QCursor, QPixmap
 from functions.user_period import find_data
-import time
 
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
-        # Sleep for 2 seconds to allow the splash screen to be shown THEN load the data
         self.data = sqlite3.connect('./data/crash.db')
         
-        #window settings
+        # Window settings
         self.setWindowTitle("VicCrash Viewer")
         self.width = 1500
-        self.height = 1000
+        self.height = 700
         self.resize(self.width, self.height)
         self.move(50, 10)
 
-
-        # Define navigation buttons as per system design
-
         # Logo (needs replacing with better quality)
         self.logo_label = QLabel(self)
-        self.logo = QtGui.QPixmap('./data/logo.png').scaled(320, 230)
+        self.logo = QtGui.QPixmap('./data/logo.png').scaled(250, 175)
         self.logo_label.setPixmap(self.logo)
+        self.logo_label.setStyleSheet("padding-bottom: 30px;")
         
         # Sidebar buttons, styled in setupUI
-        self.home = QPushButton('Home', self)
+        # Home Button nav button
+        self.home = QPushButton('HOME', self)
         self.home.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
         self.home.clicked.connect(self.homeButton)
+        self.home.setFixedHeight(80)
+        self.home.setAutoDefault(True)
 
-        self.tod = QPushButton('Time of Day', self)
+        # Time of day nav button
+        self.tod = QPushButton('TIME OF DAY', self)
         self.tod.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
         self.tod.clicked.connect(self.todButton)
-        
+        self.tod.setFixedHeight(80)
 
-        self.alco = QPushButton('Alcohol', self)
+        # Alcohol nav button
+        self.alco = QPushButton('ALCOHOL', self)
         self.alco.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
-        self.alco.clicked.connect(self.alcoButton)        
+        self.alco.clicked.connect(self.alcoButton)
+        self.alco.setFixedHeight(80) # Make it so the Home button is white on first load
 
-        self.speed = QPushButton('Speed', self)
+        # Speed nav button
+        self.speed = QPushButton('SPEED', self)
         self.speed.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
         self.speed.clicked.connect(self.speedButton)
-        
+        self.speed.setFixedHeight(80)
 
         self.homepage = self.homePage()
         self.speedpage = self.speedPage()
@@ -62,7 +65,7 @@ class Window(QMainWindow):
         sidebar.addWidget(self.alco)
         sidebar.addWidget(self.speed)
         sidebar.addStretch(5)
-        sidebar.setSpacing(20)
+        sidebar.setSpacing(0)
         sidebar_widget = QWidget()
         sidebar_widget.setLayout(sidebar)
         sidebar_widget.setStyleSheet(""" 
@@ -72,6 +75,13 @@ class Window(QMainWindow):
                 font-weight: bold;
                 font-size: 15px;
                 height: 30px;
+                border: 0.5px solid black;
+                border-radius: 5px;
+                margin: 0;
+                width: 100%;
+            }
+            QPushButton:focus {
+                background-color: rgb(255, 255, 255);
             }
             QPushButton:hover {
                 background-color: rgb(255, 255, 255);
@@ -96,18 +106,25 @@ class Window(QMainWindow):
                     margin: 0; 
                     padding: 0; 
                     border: none;
-                } QTabWidget {
+                } 
+                QTabWidget {
                     background-color: rgb(239, 243, 244);
-                } QLabel {
+                } 
+                QLabel {
                     color: rgb(44, 52, 57);
                     font-weight: bold;
                     font-size: 25px;
+                }
+                QTabWidget::pane {
+                    border-radius: 10px;  
+                    background-color: rgb(255, 255, 255);
                 }
                 """)
 
         main_layout = QHBoxLayout()
         main_layout.addWidget(sidebar_widget)
         main_layout.addWidget(self.main_widget)
+        main_layout.setSpacing(-10)
         main_layout.setStretch(0, 40)
         main_layout.setStretch(1, 200)
         main_layout_widget = QWidget()
@@ -120,7 +137,7 @@ class Window(QMainWindow):
 
     def homeButton(self):
         self.main_widget.setCurrentIndex(0)
-    
+
     def todButton(self):
         self.main_widget.setCurrentIndex(1)
 
@@ -136,7 +153,7 @@ class Window(QMainWindow):
     #########
 
     def homePage(self):
-        #### Search/date boxes/inputs
+        # Search/date boxes/inputs
         # "Label"
         self.keyword_search_box = QGroupBox("Search Term")
         # The input box, will grab value for search
@@ -184,6 +201,7 @@ class Window(QMainWindow):
                 color: black;
             }
          """)
+
         # Search button label and button linked to homePagePerformSearch function, that passes data to user_period.py
         self.search_box = QGroupBox("Search")
         self.search_button = QPushButton('Go', self)
@@ -199,25 +217,41 @@ class Window(QMainWindow):
             }
          """)
 
-        # All all the above 'labels' and inputs into a layout ref: labelsandinputs
+         # Search button label and button linked to homePagePerformSearch function, that passes data to user_period.py
+        self.reset_box = QGroupBox("Reset")
+        self.reset_button = QPushButton('Reset', self)
+        self.reset_button.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        self.reset_button.clicked.connect(self.homePageResetTable)
+        self.reset_layout = QVBoxLayout(self.reset_box)
+        self.reset_layout.addStretch(2)
+        self.reset_box.setLayout(self.reset_layout)
+        self.reset_layout.addWidget(self.reset_button)
+        self.reset_box.setStyleSheet("""
+            QGroupBox {
+                color: black;
+            }
+         """)
+
+        # All all the above 'labels' and inputs into a grid layout ref: labelsandinputs
         self.search_input_holder = QGroupBox()
         self.input_button_holders = QGridLayout(self)
         self.input_button_holders.addWidget(self.keyword_search_box, 0, 0, 1, 2)
         self.input_button_holders.addWidget(self.start_date_input_box, 0, 2, 1, 1)
         self.input_button_holders.addWidget(self.end_date_input_box, 0, 3, 1, 1)
         self.input_button_holders.addWidget(self.search_box, 0, 4, 1, 1)
+        self.input_button_holders.addWidget(self.reset_box, 0, 5, 1, 1)
         self.search_input_holder.setLayout(self.input_button_holders)
 
-        # Data view 
+        # Inserting data into the table
         self.model = QtGui.QStandardItemModel(self)
         self.tableView = QtWidgets.QTableView(self)
-        self.tableView.setMinimumHeight(900)
+        self.tableView.setMinimumHeight(700)
         self.tableView.setModel(self.model)
         cursor = self.data.cursor()
         alldata = cursor.execute("SELECT * FROM crashdata")
-        # Set the headers - we could manually name them to look nicer, but atm they're just
-        # Grabbing column names from DB
-        self.model.setHorizontalHeaderLabels(description[0].replace("ACCIDENT_", "") for description in cursor.description)
+        # Set the headers - RAW data version as per software plan
+        self.table_headers = [description[0].replace("ACCIDENT_", "") for description in cursor.description]
+        self.model.setHorizontalHeaderLabels(self.table_headers)
         for row in alldata.fetchall():
             items = [
                 QtGui.QStandardItem(field)
@@ -233,7 +267,6 @@ class Window(QMainWindow):
         shadow = QGraphicsDropShadowEffect(blurRadius=15, xOffset=1, yOffset=1)
         self.tableView.setGraphicsEffect(shadow)
         tab_layout = QVBoxLayout()
-        
         tab_layout.addWidget(QLabel('Accident Data'))
         tab_layout.addWidget(self.search_input_holder) # This is labelsandinputs being added to the main tab
         tab_layout.addWidget(self.tableView) # The data view, will need to update this when the search has returned data
@@ -271,7 +304,49 @@ class Window(QMainWindow):
     #############
     def homePagePerformSearch(self):
         self.search_results = find_data(self.start_date_input.date(), self.end_date_input.date(), self.keyword_search_input.text(), self.data)
-
+        # Updating the page model to show search results
+        self.search_results_model = QtGui.QStandardItemModel(self)
+        # Set the headers of the filtered data
+        self.search_table_headers = [
+            "Accident No",
+            "Status",
+            "Date",
+            "Time",
+            "Type",
+            "Day",
+            "Alcohol?",
+            "Hit 'n' Run?",
+            "Lighting",
+            "Police?",
+            "Road Type",
+            "Severity",
+            "Speed limit",
+            "Run offroad?",
+            "Region",
+            "Total Involved",
+            "Fatality",
+            "Serious Injury",
+            "Injury",
+            "Not Injured",
+            "Males",
+            "Females",
+            "Old Drivers",
+            "Young Drivers",
+            "No license",
+            "Num of Vehicles"
+        ]
+        self.search_results_model.setHorizontalHeaderLabels(self.search_table_headers)
+        self.tableView.setModel(self.search_results_model)
+        for row in self.search_results:
+            items = [
+                QtGui.QStandardItem(field)
+                for field in row
+            ]
+            self.search_results_model.appendRow(items)
+    
+    # When the user wants to go back to the raw dataset instead of search results
+    def homePageResetTable(self):
+        self.tableView.setModel(self.model)
 
 ###########################
 # Running the application #
@@ -279,7 +354,7 @@ class Window(QMainWindow):
 if __name__ == '__main__':
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    pixmap = QPixmap('data/logo.png').scaled(400, 400)
+    pixmap = QPixmap('data/logo.png').scaled(250, 175)
     splash = QSplashScreen(pixmap)
     splash.show()
 
