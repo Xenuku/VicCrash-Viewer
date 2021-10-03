@@ -270,7 +270,7 @@ class Window(QMainWindow):
     # Functions #
     #############
     def homePagePerformSearch(self):
-        find_data(self.start_date_input.date(), self.end_date_input.date(), self.keyword_search_input.text(), self.data)
+        self.search_results = find_data(self.start_date_input.date(), self.end_date_input.date(), self.keyword_search_input.text(), self.data)
 
 
 ###########################
