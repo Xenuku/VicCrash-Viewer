@@ -1,9 +1,12 @@
 import sqlite3
-import matplotlib.pyplot as plt
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QCursor, QPixmap
 from functions.user_period import find_data
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+
 
 class Window(QMainWindow):
     def __init__(self):
@@ -17,7 +20,6 @@ class Window(QMainWindow):
         self.resize(self.width, self.height)
         self.move(50, 10)
 
-        # Logo (needs replacing with better quality)
         self.logo_label = QLabel(self)
         self.logo = QtGui.QPixmap('./data/logo.png').scaled(250, 175)
         self.logo_label.setPixmap(self.logo)
@@ -292,8 +294,108 @@ class Window(QMainWindow):
         return tab
 
     def speedPage(self):
+        # Speed chart starting date
+        self.speed_start_date_input_box = QGroupBox("Start Date")
+        self.speed_start_date_input = QDateEdit(calendarPopup=True)
+        self.speed_start_date_input.setDate(QtCore.QDate(2013, 7, 1))
+        self.speed_start_date_layout = QVBoxLayout(self.speed_start_date_input_box)
+        self.speed_start_date_layout.addStretch(2)
+        self.speed_start_date_input_box.setLayout(self.speed_start_date_layout)
+        self.speed_start_date_layout.addWidget(self.speed_start_date_input)
+        self.speed_start_date_input_box.setStyleSheet("""
+            QGroupBox {
+                color: black;
+            }
+         """)
+        # Speed chart end date
+        self.speed_end_date_input_box = QGroupBox("End Date")
+        self.speed_end_date_input = QDateEdit(calendarPopup=True)
+        self.speed_end_date_input.setDate(QtCore.QDate(2019, 3, 21))
+        self.speed_end_date_layout = QVBoxLayout(self.speed_end_date_input_box)
+        self.speed_end_date_layout.addStretch(2)
+        self.speed_end_date_input_box.setLayout(self.speed_end_date_layout)
+        self.speed_end_date_layout.addWidget(self.speed_end_date_input)
+        self.speed_end_date_input_box.setStyleSheet("""
+            QGroupBox {
+                color: black;
+            }
+         """)
+        
+        # Speed chart filter button, connects to function speedPagePerformSearch
+        self.speed_search_box = QGroupBox("Search")
+        self.speed_search_button = QPushButton('Filter', self)
+        self.speed_search_button.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        self.speed_search_button.clicked.connect(self.speedPagePerformSearch)
+        self.speed_search_layout = QVBoxLayout(self.speed_search_box)
+        self.speed_search_layout.addStretch(2)
+        self.speed_search_box.setLayout(self.speed_search_layout)
+        self.speed_search_layout.addWidget(self.speed_search_button)
+        self.speed_search_box.setStyleSheet("""
+            QGroupBox {
+                color: black;
+            }
+        """)
+
+        self.speed_search_input_holder = QGroupBox()
+        self.speed_input_button_holders = QGridLayout(self)
+        self.speed_input_button_holders.addWidget(self.speed_start_date_input_box, 0, 2, 1, 1)
+        self.speed_input_button_holders.addWidget(self.speed_end_date_input_box, 0, 3, 1, 1)
+        self.speed_input_button_holders.addWidget(self.speed_search_box, 0, 4, 1, 1)
+        self.speed_search_input_holder.setLayout(self.speed_input_button_holders)
+        speed_start_date = self.speed_start_date_input.date().toString('yyyy-MM-dd')
+        speed_end_date = self.speed_end_date_input.date().toString('yyyy-MM-dd')
+
+        speed_query = f"""
+        SELECT  
+            ( SELECT COUNT(*) FROM crashdata WHERE speed_zone = "40 km/hr" AND (DATE(accident_date) 
+                                BETWEEN DATE('{speed_start_date}') AND DATE('{speed_end_date}')) ),
+            ( SELECT COUNT(*) FROM crashdata WHERE speed_zone = "50 km/hr" AND (DATE(accident_date) 
+                                BETWEEN DATE('{speed_start_date}') AND DATE('{speed_end_date}')) ),
+            ( SELECT COUNT(*) FROM crashdata WHERE speed_zone = "60 km/hr" AND (DATE(accident_date) 
+                                BETWEEN DATE('{speed_start_date}') AND DATE('{speed_end_date}')) ),
+            ( SELECT COUNT(*) FROM crashdata WHERE speed_zone = "70 km/hr" AND (DATE(accident_date) 
+                                BETWEEN DATE('{speed_start_date}') AND DATE('{speed_end_date}')) ),
+            ( SELECT COUNT(*) FROM crashdata WHERE speed_zone = "80 km/hr" AND (DATE(accident_date) 
+                                BETWEEN DATE('{speed_start_date}') AND DATE('{speed_end_date}')) ),
+            ( SELECT COUNT(*) FROM crashdata WHERE speed_zone = "90 km/hr" AND (DATE(accident_date) 
+                                BETWEEN DATE('{speed_start_date}') AND DATE('{speed_end_date}')) ),
+            ( SELECT COUNT(*) FROM crashdata WHERE speed_zone = "100 km/hr" AND (DATE(accident_date)
+                                BETWEEN DATE('{speed_start_date}') AND DATE('{speed_end_date}')) );
+        """
+        print("Initial Start date", speed_start_date)
+        print("Initial End date", speed_end_date)
+        cursor = self.data.cursor()
+        speeddata = cursor.execute(speed_query)
+        speed_results = speeddata.fetchall()
+        speed_results = list(speed_results[0])
+        print(speed_results)
+
+        #Matplotlib stuff
+    
+        plt.style.use("fivethirtyeight")
+
+        slices = speed_results
+        labels = [
+            '40 km/hr',
+            '50 km/hr', 
+            '60 km/hr', 
+            '70 km/hr', 
+            '80 km/hr', 
+            '90 km/hr', 
+            '100 km/hr'
+        ]
+
+        # plt.pie(slices, labels=labels)
+
+        # plt.title("Fuck this assignment")
+        # plt.tight_layout()
+        # plt.show()
+
+
+
         tab_layout = QVBoxLayout()
         tab_layout.addWidget(QLabel('Speed'))
+        tab_layout.addWidget(self.speed_search_input_holder)
         tab_layout.addStretch(5)
         tab = QWidget()
         tab.setLayout(tab_layout)
@@ -347,6 +449,45 @@ class Window(QMainWindow):
     # When the user wants to go back to the raw dataset instead of search results
     def homePageResetTable(self):
         self.tableView.setModel(self.model)
+    
+    def speedPagePerformSearch(self):
+        # Update the chart data here
+        cursor = self.data.cursor()
+        speed_search_start_date = self.speed_start_date_input.date().toString('yyyy-MM-dd')
+        speed_search_end_date = self.speed_end_date_input.date().toString('yyyy-MM-dd')
+        speed_search_query = f"""
+        SELECT  
+            ( SELECT COUNT(*) FROM crashdata WHERE speed_zone = "40 km/hr" AND (DATE(accident_date) 
+                                BETWEEN DATE('{speed_search_start_date}') AND DATE('{speed_search_end_date}')) ),
+            ( SELECT COUNT(*) FROM crashdata WHERE speed_zone = "50 km/hr" AND (DATE(accident_date) 
+                                BETWEEN DATE('{speed_search_start_date}') AND DATE('{speed_search_end_date}')) ),
+            ( SELECT COUNT(*) FROM crashdata WHERE speed_zone = "60 km/hr" AND (DATE(accident_date) 
+                                BETWEEN DATE('{speed_search_start_date}') AND DATE('{speed_search_end_date}')) ),
+            ( SELECT COUNT(*) FROM crashdata WHERE speed_zone = "70 km/hr" AND (DATE(accident_date) 
+                                BETWEEN DATE('{speed_search_start_date}') AND DATE('{speed_search_end_date}')) ),
+            ( SELECT COUNT(*) FROM crashdata WHERE speed_zone = "80 km/hr" AND (DATE(accident_date) 
+                                BETWEEN DATE('{speed_search_start_date}') AND DATE('{speed_search_end_date}')) ),
+            ( SELECT COUNT(*) FROM crashdata WHERE speed_zone = "90 km/hr" AND (DATE(accident_date) 
+                                BETWEEN DATE('{speed_search_start_date}') AND DATE('{speed_search_end_date}')) ),
+            ( SELECT COUNT(*) FROM crashdata WHERE speed_zone = "100 km/hr" AND (DATE(accident_date)
+                                BETWEEN DATE('{speed_search_start_date}') AND DATE('{speed_search_end_date}')) );
+        """
+        print("Searched Start date", speed_search_start_date)
+        print("Searched End date", speed_search_end_date)
+        speeddata = cursor.execute(speed_search_query)
+        speed_results = speeddata.fetchall()
+        print(list(speed_results[0]))
+        # do update
+
+    # class Canvas(FigureCanvas):
+    #     def __init__(self, parent = None, width = 5, height = 5, dpi = 100)
+    #         fig = Figure(figsize=(width, height), dpi=dpi)
+    #         self.axes = fig.add_subplot(111)
+
+    #         FigureCanvas.__init__(self, fig)
+    #         self.setParent(parent)
+
+        #def plot(self):
 
 ###########################
 # Running the application #
