@@ -379,7 +379,7 @@ class Window(QMainWindow):
 
         
         tab_layout = QVBoxLayout()
-        tab_layout.addWidget(QLabel('Time2 of Day'))
+        tab_layout.addWidget(QLabel('Time of Day'))
         tab_layout.addWidget(self.filter_input_holder) # This is labelsandinputs being added to the main tab
         tab_layout.addWidget(self.graphWidget) # This is labelsandinputs being added to the main tab
         tab_layout.addStretch(5)
