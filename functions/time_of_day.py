@@ -14,6 +14,6 @@ def get_time_data(start_date, end_date, data):
             """)
     result = c.fetchall()
     # debug to check inputs
-    print(f"Time of day data retrieved! START: {startdate} and END: {enddate}")
-    print(result)
+    #print(f"Time of day data retrieved! START: {startdate} and END: {enddate}")
+    #print(result)
     return result

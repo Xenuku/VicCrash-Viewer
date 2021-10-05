@@ -291,31 +291,28 @@ class Window(QMainWindow):
 
     def todPage(self):
         self.plotLine = None
-        # The start date label and input, need to set a 'min' date from the data
-        self.start_date_input_box = QGroupBox("Start Date")
-        # Calendar input, will get date for search
-        self.start_date_input = QDateEdit(calendarPopup=True)
-        self.start_date_input.setDate(QtCore.QDate(2013, 7, 1))
-        # "Label"
-        self.start_date_layout = QVBoxLayout(self.start_date_input_box)
-        self.start_date_layout.addStretch(2)
-        self.start_date_input_box.setLayout(self.start_date_layout)
-        self.start_date_layout.addWidget(self.start_date_input)
-        self.start_date_input_box.setStyleSheet("""
+        self.filter_start_date_input_box = QGroupBox("Start Date")
+        self.filter_start_date_input = QDateEdit(calendarPopup=True)
+        self.filter_start_date_input.setDate(QtCore.QDate(2013, 7, 1))
+        self.filter_start_date_layout = QVBoxLayout(self.filter_start_date_input_box)
+        self.filter_start_date_layout.addStretch(2)
+        self.filter_start_date_input_box.setLayout(self.filter_start_date_layout)
+        self.filter_start_date_layout.addWidget(self.filter_start_date_input)
+        self.filter_start_date_input_box.setStyleSheet("""
             QGroupBox {
                 color: black;
             }
          """)
 
         # The end date label and input, need to set a 'max' date from the data
-        self.end_date_input_box = QGroupBox("End Date")
-        self.end_date_input = QDateEdit(calendarPopup=True)
-        self.end_date_input.setDate(QtCore.QDate(2019, 3, 21))
-        self.end_date_layout = QVBoxLayout(self.end_date_input_box)
-        self.end_date_layout.addStretch(2)
-        self.end_date_input_box.setLayout(self.end_date_layout)
-        self.end_date_layout.addWidget(self.end_date_input)
-        self.end_date_input_box.setStyleSheet("""
+        self.filter_end_date_input_box = QGroupBox("End Date")
+        self.filter_end_date_input = QDateEdit(calendarPopup=True)
+        self.filter_end_date_input.setDate(QtCore.QDate(2019, 3, 21))
+        self.filter_end_date_layout = QVBoxLayout(self.filter_end_date_input)
+        self.filter_end_date_layout.addStretch(2)
+        self.filter_end_date_input_box.setLayout(self.filter_end_date_layout)
+        self.filter_end_date_layout.addWidget(self.filter_end_date_input)
+        self.filter_end_date_input_box.setStyleSheet("""
             QGroupBox {
                 color: black;
             }
@@ -336,55 +333,32 @@ class Window(QMainWindow):
             }
          """)
         
-        # All all the above 'labels' and inputs into a grid layout ref: labelsandinputs
         self.filter_input_holder = QGroupBox()
-        self.input_button_holders = QGridLayout(self)
-        self.input_button_holders.addWidget(self.start_date_input_box, 0, 2, 1, 1)
-        self.input_button_holders.addWidget(self.end_date_input_box, 0, 3, 1, 1)
-        self.input_button_holders.addWidget(self.filter_box, 0, 4, 1, 1)
-        # self.input_button_holders.addWidget(self.reset_box, 0, 5, 1, 1)
-        self.filter_input_holder.setLayout(self.input_button_holders)
+        self.filter_input_button_holders = QGridLayout(self)
+        self.filter_input_button_holders.addWidget(self.filter_start_date_input_box, 0, 2, 1, 1)
+        self.filter_input_button_holders.addWidget(self.filter_end_date_input_box, 0, 3, 1, 1)
+        self.filter_input_button_holders.addWidget(self.filter_box, 0, 4, 1, 1)
+        self.filter_input_holder.setLayout(self.filter_input_button_holders)
 
-        # cursor = self.data.cursor()
-        # alldata = cursor.execute("SELECT * FROM crashdata")
-        #self.filter_results = get_time_data(self.start_date_input.date(), self.end_date_input.date(), self.data)
+        initial_graph = get_time_data(self.filter_start_date_input.date(), self.filter_end_date_input.date(), self.data)
+        rounded_time = []
+        incident_count = []
+        for row in enumerate(initial_graph):
+            rounded_time.append(row[1][0])
+            incident_count.append(row[1][1])
 
-        #rounded_time=[]
-        #incident_count=[]
+        self.todchart = PlotCanvas(self, width=10, height=10, dpi=100)
+        self.todchart.axes.plot(rounded_time, incident_count, 'b--', label="Time of day trend?")
+        self.todchart.axes.set_title('TOD Accidents')
 
-        #for row in enumerate(self.filter_results):
-          #  rounded_time.append(row[1][0])
-          #  incident_count.append(row[1][1])
-
-        self.graphWidget = pg.PlotWidget()
-        self.setCentralWidget(self.graphWidget)
-
-        # Add Axis Labels
-        styles = {"color": "#126158", "font-size": "10px"}
-        self.graphWidget.setLabel("left", "Average Incidents", **styles)
-        self.graphWidget.setLabel("bottom", "Time of Day (H)", **styles)
-        #Add legend
-        #self.graphWidget.addLegend()
-        #Add grid
-        self.graphWidget.showGrid(x=True, y=True)
-        #Set Range
-        self.graphWidget.setXRange(0, 23, padding=0)
-        self.graphWidget.setYRange(0, 9000, padding=0)
-
-
-
-        self.todPagePerformFilter()
-
-    
-
-        
-        tab_layout = QVBoxLayout()
-        tab_layout.addWidget(QLabel('Time of Day'))
-        tab_layout.addWidget(self.filter_input_holder) # This is labelsandinputs being added to the main tab
-        tab_layout.addWidget(self.graphWidget) # This is labelsandinputs being added to the main tab
-        tab_layout.addStretch(5)
+       
+        self.filter_tab_layout = QVBoxLayout()
+        self.filter_tab_layout.addWidget(QLabel('Time of Day'))
+        self.filter_tab_layout.addWidget(self.filter_input_holder)
+        self.filter_tab_layout.addWidget(self.todchart) 
+        self.filter_tab_layout.addStretch(5)
         tab = QWidget()
-        tab.setLayout(tab_layout)
+        tab.setLayout(self.filter_tab_layout)
         return tab
 
 
@@ -397,7 +371,7 @@ class Window(QMainWindow):
         return tab
 
     def speedPage(self):
-        # Speed chart starting date
+        # Speed chart starting search date
         self.speed_start_date_input_box = QGroupBox("Start Date")
         self.speed_start_date_input = QDateEdit(calendarPopup=True)
         self.speed_start_date_input.setDate(QtCore.QDate(2013, 7, 1))
@@ -410,7 +384,7 @@ class Window(QMainWindow):
                 color: black;
             }
          """)
-        # Speed chart end date
+        # Speed chart end search date
         self.speed_end_date_input_box = QGroupBox("End Date")
         self.speed_end_date_input = QDateEdit(calendarPopup=True)
         self.speed_end_date_input.setDate(QtCore.QDate(2019, 3, 21))
@@ -438,7 +412,7 @@ class Window(QMainWindow):
                 color: black;
             }
         """)
-
+        # holders for start and end speed dates
         self.speed_search_input_holder = QGroupBox()
         self.speed_input_button_holders = QGridLayout(self)
         self.speed_input_button_holders.addWidget(self.speed_start_date_input_box, 0, 2, 1, 1)
@@ -448,6 +422,7 @@ class Window(QMainWindow):
         speed_start_date = self.speed_start_date_input.date().toString('yyyy-MM-dd')
         speed_end_date = self.speed_end_date_input.date().toString('yyyy-MM-dd')
 
+        # grabbing crash data from specific speed zones
         speed_query = f"""
         SELECT  
             ( SELECT COUNT(*) FROM crashdata WHERE speed_zone = "40 km/hr" AND (DATE(accident_date) 
@@ -463,13 +438,15 @@ class Window(QMainWindow):
             ( SELECT COUNT(*) FROM crashdata WHERE speed_zone = "90 km/hr" AND (DATE(accident_date) 
                                 BETWEEN DATE('{speed_start_date}') AND DATE('{speed_end_date}')) ),
             ( SELECT COUNT(*) FROM crashdata WHERE speed_zone = "100 km/hr" AND (DATE(accident_date)
+                                BETWEEN DATE('{speed_start_date}') AND DATE('{speed_end_date}')) ),
+            ( SELECT COUNT(*) FROM crashdata WHERE speed_zone = "110 km/hr" AND (DATE(accident_date)
                                 BETWEEN DATE('{speed_start_date}') AND DATE('{speed_end_date}')) );
         """
         cursor = self.data.cursor()
         speeddata = cursor.execute(speed_query)
         speed_results = speeddata.fetchall()
         speed_results = list(speed_results[0])
-        plt.style.use("fivethirtyeight")
+        
         
         self.speed_labels = [
             f'40 km/hr ({speed_results[0]})',
@@ -478,12 +455,15 @@ class Window(QMainWindow):
             f'70 km/hr ({speed_results[3]})', 
             f'80 km/hr ({speed_results[4]})', 
             f'90 km/hr ({speed_results[5]})', 
-            f'100 km/hr ({speed_results[6]})'
+            f'100 km/hr ({speed_results[6]})',
+            f'110 km/hr ({speed_results[7]})'
         ]
-
+        explode = [0.3, 0, 0,0,0,0,0,0]
+        wedges = {'linewidth':0}
+        colors = ['#21E132', '#DB2DCE', '#D22424', '#2542D0', '#D9E72C', '#1BD8D3', '#D68919', '#6624E2']
         self.speed_chart = PlotCanvas(self, width=10, height=10, dpi=100)
-        self.speed_chart.axes.pie(speed_results, labels=self.speed_labels)
-        self.speed_chart.axes.set_title('Number of Crashes per Speed Zone')
+        self.speed_chart.axes.pie(speed_results, explode=explode, labels=self.speed_labels, colors=colors, shadow=True, startangle=270, wedgeprops=wedges, autopct='%1.1f%%')
+        self.speed_chart.axes.set_title('Number of Accidents per Speed Zone')
 
         self.speed_tab_layout = QVBoxLayout()
         self.speed_tab_layout.addWidget(QLabel('Speed'))
@@ -563,6 +543,8 @@ class Window(QMainWindow):
             ( SELECT COUNT(*) FROM crashdata WHERE speed_zone = "90 km/hr" AND (DATE(accident_date) 
                                 BETWEEN DATE('{speed_search_start_date}') AND DATE('{speed_search_end_date}')) ),
             ( SELECT COUNT(*) FROM crashdata WHERE speed_zone = "100 km/hr" AND (DATE(accident_date)
+                                BETWEEN DATE('{speed_search_start_date}') AND DATE('{speed_search_end_date}')) ),
+            ( SELECT COUNT(*) FROM crashdata WHERE speed_zone = "110 km/hr" AND (DATE(accident_date)
                                 BETWEEN DATE('{speed_search_start_date}') AND DATE('{speed_search_end_date}')) );
         """
         speeddata = cursor.execute(speed_search_query)
@@ -576,7 +558,8 @@ class Window(QMainWindow):
             f'70 km/hr ({searched_speed_results[3]})', 
             f'80 km/hr ({searched_speed_results[4]})', 
             f'90 km/hr ({searched_speed_results[5]})', 
-            f'100 km/hr ({searched_speed_results[6]})'
+            f'100 km/hr ({searched_speed_results[6]})',
+            f'110 km/hr ({searched_speed_results[7]})'
         ]
  
         # Remove the initial pie chart as it is no longer required.
@@ -586,28 +569,37 @@ class Window(QMainWindow):
             self.speed_tab_layout.removeWidget(self.searched_speed_chart)
         self.searched_speed_chart = PlotCanvas(self, width=10, height=10, dpi=100)
         self.searched_speed_chart.axes.pie(searched_speed_results, labels=self.search_labels)
-        self.searched_speed_chart.axes.set_title('Number of Crashes per Speed Zone')
+        self.searched_speed_chart.axes.set_title('Number of Accidents per Speed Zone')
         self.speed_tab_layout.addWidget(self.searched_speed_chart)
     
+    def todPagePerformFilterSearch(self):
+        print("Jack smelly")
     def todPagePerformFilter(self):
-        # alldata = cursor.execute("SELECT * FROM crashdata")
-        self.filter_results = get_time_data(self.start_date_input.date(), self.end_date_input.date(), self.data)
-
+        self.filter_results = get_time_data(self.filter_start_date_input.date(), self.filter_end_date_input.date(), self.data)
         rounded_time=[]
         incident_count=[]
-
+        if hasattr(self, 'filtered_graph_widget'):
+            self.filter_tab_layout.removeWidget(self.filtered_graph_widget)
+        self.filtered_graph_widget = pg.PlotWidget()
+        styles = {"color": "#126158", "font-size": "10px"}
+        self.filtered_graph_widget.setLabel("left", "Average Incidents", **styles)
+        self.filtered_graph_widget.setLabel("bottom", "Time of Day (H)", **styles)
+        self.filtered_graph_widget.showGrid(x=True, y=True)
+        self.filtered_graph_widget.setXRange(0, 23, padding=0)
+        self.filtered_graph_widget.setYRange(0, 9000, padding=0)
+         
         for row in enumerate(self.filter_results):
             rounded_time.append(row[1][0])
             incident_count.append(row[1][1])
-        self.plot( rounded_time, incident_count, "", "#7FB815","Y")
-    
+        pen = pg.mkPen(color="#7FB815")
+        self.plotLine = self.filtered_graph_widget.plot(rounded_time, incident_count, name="", pen=pen, symbol='o', symbolSize=10, symbolBrush=("#7FB815"))
+        self.update()
+        self.filter_tab_layout.removeWidget(self.graphWidget)
+        self.filter_tab_layout.addWidget(self.filtered_graph_widget)
+
     def plot(self, x, y, plotname, color, clear):
         pen = pg.mkPen(color=color)
-
-        if clear =="Y" and   self.plotLine is not None:
-           self.plotLine.clear() 
         self.plotLine = self.graphWidget.plot(x, y, name=plotname, pen=pen, symbol='o', symbolSize=10, symbolBrush=(color))
-
         self.update()
 
 ###########################
