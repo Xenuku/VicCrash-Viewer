@@ -4,11 +4,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QCursor, QPixmap
 from functions.user_period import find_data
 from functions.time_of_day import get_time_data
-import pyqtgraph as pg
-import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-import os
 
 # Globally used across all pages for embedding charts
 class PlotCanvas(FigureCanvas):
@@ -290,7 +287,6 @@ class Window(QMainWindow):
         return tab
 
     def todPage(self):
-        self.plotLine = None
         self.filter_start_date_input_box = QGroupBox("Start Date")
         self.filter_start_date_input = QDateEdit(calendarPopup=True)
         self.filter_start_date_input.setDate(QtCore.QDate(2013, 7, 1))
@@ -318,11 +314,11 @@ class Window(QMainWindow):
             }
          """)
 
-        # Search button label and button linked to todPagePerformFilter function, that passes data to time_of_day.py
+        # Search button label and button linked to todPagePerformFilterSearch function, that passes data to time_of_day.py
         self.filter_box = QGroupBox("Search")
         self.filter_button = QPushButton('Go', self)
         self.filter_button.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
-        self.filter_button.clicked.connect(self.todPagePerformFilter)
+        self.filter_button.clicked.connect(self.todPagePerformFilterSearch)
         self.filter_layout = QVBoxLayout(self.filter_box)
         self.filter_layout.addStretch(2)
         self.filter_box.setLayout(self.filter_layout)
@@ -349,6 +345,8 @@ class Window(QMainWindow):
 
         self.todchart = PlotCanvas(self, width=10, height=10, dpi=100)
         self.todchart.axes.plot(rounded_time, incident_count, 'b--', label="Time of day trend?")
+        self.todchart.axes.set_xlabel("Time (hour)")
+        self.todchart.axes.set_ylabel("Accidents (total)")
         self.todchart.axes.set_title('TOD Accidents')
 
        
@@ -567,40 +565,30 @@ class Window(QMainWindow):
         # Delete the search results each time, update with new results
         if hasattr(self, 'searched_speed_chart'):
             self.speed_tab_layout.removeWidget(self.searched_speed_chart)
+        explode = [0.3, 0, 0,0,0,0,0,0]
+        wedges = {'linewidth':0}
+        colors = ['#21E132', '#DB2DCE', '#D22424', '#2542D0', '#D9E72C', '#1BD8D3', '#D68919', '#6624E2']
         self.searched_speed_chart = PlotCanvas(self, width=10, height=10, dpi=100)
-        self.searched_speed_chart.axes.pie(searched_speed_results, labels=self.search_labels)
+        self.searched_speed_chart.axes.pie(searched_speed_results, labels=self.search_labels, explode=explode, colors=colors, shadow=True, startangle=270, wedgeprops=wedges, autopct='%1.1f%%')
         self.searched_speed_chart.axes.set_title('Number of Accidents per Speed Zone')
         self.speed_tab_layout.addWidget(self.searched_speed_chart)
     
     def todPagePerformFilterSearch(self):
-        print("Jack smelly")
-    def todPagePerformFilter(self):
-        self.filter_results = get_time_data(self.filter_start_date_input.date(), self.filter_end_date_input.date(), self.data)
-        rounded_time=[]
-        incident_count=[]
-        if hasattr(self, 'filtered_graph_widget'):
-            self.filter_tab_layout.removeWidget(self.filtered_graph_widget)
-        self.filtered_graph_widget = pg.PlotWidget()
-        styles = {"color": "#126158", "font-size": "10px"}
-        self.filtered_graph_widget.setLabel("left", "Average Incidents", **styles)
-        self.filtered_graph_widget.setLabel("bottom", "Time of Day (H)", **styles)
-        self.filtered_graph_widget.showGrid(x=True, y=True)
-        self.filtered_graph_widget.setXRange(0, 23, padding=0)
-        self.filtered_graph_widget.setYRange(0, 9000, padding=0)
-         
-        for row in enumerate(self.filter_results):
+        filter_results = get_time_data(self.filter_start_date_input.date(), self.filter_end_date_input.date(), self.data)
+        rounded_time = []
+        incident_count = []
+        for row in enumerate(filter_results):
             rounded_time.append(row[1][0])
             incident_count.append(row[1][1])
-        pen = pg.mkPen(color="#7FB815")
-        self.plotLine = self.filtered_graph_widget.plot(rounded_time, incident_count, name="", pen=pen, symbol='o', symbolSize=10, symbolBrush=("#7FB815"))
-        self.update()
-        self.filter_tab_layout.removeWidget(self.graphWidget)
-        self.filter_tab_layout.addWidget(self.filtered_graph_widget)
-
-    def plot(self, x, y, plotname, color, clear):
-        pen = pg.mkPen(color=color)
-        self.plotLine = self.graphWidget.plot(x, y, name=plotname, pen=pen, symbol='o', symbolSize=10, symbolBrush=(color))
-        self.update()
+        if hasattr(self, 'filtered_tod_chart'):
+            self.filter_tab_layout.removeWidget(self.filtered_tod_chart)
+        self.filtered_tod_chart = PlotCanvas(self, width=10, height=10, dpi=100)
+        self.filtered_tod_chart.axes.plot(rounded_time, incident_count, 'g--', label="Time of day trend?")
+        self.filtered_tod_chart.axes.set_xlabel("Time (hour)")
+        self.filtered_tod_chart.axes.set_ylabel("Accidents (total)")
+        self.filtered_tod_chart.axes.set_title('TOD Accidents')
+        self.filter_tab_layout.removeWidget(self.todchart)
+        self.filter_tab_layout.addWidget(self.filtered_tod_chart)
 
 ###########################
 # Running the application #
