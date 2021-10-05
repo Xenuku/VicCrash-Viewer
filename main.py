@@ -7,6 +7,15 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
+# Globally used across all pages for embedding charts
+class PlotCanvas(FigureCanvas):
+    def __init__(self, parent = None, width = 5, height = 5, dpi = 100):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = fig.add_subplot(111)
+        self.axes.cla()
+
+        FigureCanvas.__init__(self, fig)
+
 
 class Window(QMainWindow):
     def __init__(self):
@@ -362,43 +371,33 @@ class Window(QMainWindow):
             ( SELECT COUNT(*) FROM crashdata WHERE speed_zone = "100 km/hr" AND (DATE(accident_date)
                                 BETWEEN DATE('{speed_start_date}') AND DATE('{speed_end_date}')) );
         """
-        print("Initial Start date", speed_start_date)
-        print("Initial End date", speed_end_date)
         cursor = self.data.cursor()
         speeddata = cursor.execute(speed_query)
         speed_results = speeddata.fetchall()
         speed_results = list(speed_results[0])
-        print(speed_results)
-
-        #Matplotlib stuff
-    
         plt.style.use("fivethirtyeight")
-
-        slices = speed_results
-        labels = [
-            '40 km/hr',
-            '50 km/hr', 
-            '60 km/hr', 
-            '70 km/hr', 
-            '80 km/hr', 
-            '90 km/hr', 
-            '100 km/hr'
+        
+        self.speed_labels = [
+            f'40 km/hr ({speed_results[0]})',
+            f'50 km/hr ({speed_results[1]})', 
+            f'60 km/hr ({speed_results[2]})', 
+            f'70 km/hr ({speed_results[3]})', 
+            f'80 km/hr ({speed_results[4]})', 
+            f'90 km/hr ({speed_results[5]})', 
+            f'100 km/hr ({speed_results[6]})'
         ]
 
-        # plt.pie(slices, labels=labels)
+        self.speed_chart = PlotCanvas(self, width=10, height=10, dpi=100)
+        self.speed_chart.axes.pie(speed_results, labels=self.speed_labels)
+        self.speed_chart.axes.set_title('Number of Crashes per Speed Zone')
 
-        # plt.title("Fuck this assignment")
-        # plt.tight_layout()
-        # plt.show()
-
-
-
-        tab_layout = QVBoxLayout()
-        tab_layout.addWidget(QLabel('Speed'))
-        tab_layout.addWidget(self.speed_search_input_holder)
-        tab_layout.addStretch(5)
+        self.speed_tab_layout = QVBoxLayout()
+        self.speed_tab_layout.addWidget(QLabel('Speed'))
+        self.speed_tab_layout.addWidget(self.speed_search_input_holder)
+        self.speed_tab_layout.addWidget(self.speed_chart)
+        self.speed_tab_layout.addStretch(5)
         tab = QWidget()
-        tab.setLayout(tab_layout)
+        tab.setLayout(self.speed_tab_layout)
         return tab
 
     #############
@@ -472,22 +471,29 @@ class Window(QMainWindow):
             ( SELECT COUNT(*) FROM crashdata WHERE speed_zone = "100 km/hr" AND (DATE(accident_date)
                                 BETWEEN DATE('{speed_search_start_date}') AND DATE('{speed_search_end_date}')) );
         """
-        print("Searched Start date", speed_search_start_date)
-        print("Searched End date", speed_search_end_date)
         speeddata = cursor.execute(speed_search_query)
-        speed_results = speeddata.fetchall()
-        print(list(speed_results[0]))
-        # do update
+        searched_speed_results = speeddata.fetchall()
+        searched_speed_results = list(searched_speed_results[0])
 
-    # class Canvas(FigureCanvas):
-    #     def __init__(self, parent = None, width = 5, height = 5, dpi = 100)
-    #         fig = Figure(figsize=(width, height), dpi=dpi)
-    #         self.axes = fig.add_subplot(111)
-
-    #         FigureCanvas.__init__(self, fig)
-    #         self.setParent(parent)
-
-        #def plot(self):
+        self.search_labels = [
+            f'40 km/hr ({searched_speed_results[0]})',
+            f'50 km/hr ({searched_speed_results[1]})', 
+            f'60 km/hr ({searched_speed_results[2]})', 
+            f'70 km/hr ({searched_speed_results[3]})', 
+            f'80 km/hr ({searched_speed_results[4]})', 
+            f'90 km/hr ({searched_speed_results[5]})', 
+            f'100 km/hr ({searched_speed_results[6]})'
+        ]
+ 
+        # Remove the initial pie chart as it is no longer required.
+        self.speed_tab_layout.removeWidget(self.speed_chart)
+        # Delete the search results each time, update with new results
+        if hasattr(self, 'searched_speed_chart'):
+            self.speed_tab_layout.removeWidget(self.searched_speed_chart)
+        self.searched_speed_chart = PlotCanvas(self, width=10, height=10, dpi=100)
+        self.searched_speed_chart.axes.pie(searched_speed_results, labels=self.search_labels)
+        self.searched_speed_chart.axes.set_title('Number of Crashes per Speed Zone')
+        self.speed_tab_layout.addWidget(self.searched_speed_chart)
 
 ###########################
 # Running the application #
