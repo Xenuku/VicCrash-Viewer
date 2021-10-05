@@ -3,9 +3,12 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QCursor, QPixmap
 from functions.user_period import find_data
+from functions.time_of_day import get_time_data
+import pyqtgraph as pg
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+import os
 
 # Globally used across all pages for embedding charts
 class PlotCanvas(FigureCanvas):
@@ -287,12 +290,103 @@ class Window(QMainWindow):
         return tab
 
     def todPage(self):
+        self.plotLine = None
+        # The start date label and input, need to set a 'min' date from the data
+        self.start_date_input_box = QGroupBox("Start Date")
+        # Calendar input, will get date for search
+        self.start_date_input = QDateEdit(calendarPopup=True)
+        self.start_date_input.setDate(QtCore.QDate(2013, 7, 1))
+        # "Label"
+        self.start_date_layout = QVBoxLayout(self.start_date_input_box)
+        self.start_date_layout.addStretch(2)
+        self.start_date_input_box.setLayout(self.start_date_layout)
+        self.start_date_layout.addWidget(self.start_date_input)
+        self.start_date_input_box.setStyleSheet("""
+            QGroupBox {
+                color: black;
+            }
+         """)
+
+        # The end date label and input, need to set a 'max' date from the data
+        self.end_date_input_box = QGroupBox("End Date")
+        self.end_date_input = QDateEdit(calendarPopup=True)
+        self.end_date_input.setDate(QtCore.QDate(2019, 3, 21))
+        self.end_date_layout = QVBoxLayout(self.end_date_input_box)
+        self.end_date_layout.addStretch(2)
+        self.end_date_input_box.setLayout(self.end_date_layout)
+        self.end_date_layout.addWidget(self.end_date_input)
+        self.end_date_input_box.setStyleSheet("""
+            QGroupBox {
+                color: black;
+            }
+         """)
+
+        # Search button label and button linked to todPagePerformFilter function, that passes data to time_of_day.py
+        self.filter_box = QGroupBox("Search")
+        self.filter_button = QPushButton('Go', self)
+        self.filter_button.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        self.filter_button.clicked.connect(self.todPagePerformFilter)
+        self.filter_layout = QVBoxLayout(self.filter_box)
+        self.filter_layout.addStretch(2)
+        self.filter_box.setLayout(self.filter_layout)
+        self.filter_layout.addWidget(self.filter_button)
+        self.filter_box.setStyleSheet("""
+            QGroupBox {
+                color: black;
+            }
+         """)
+        
+        # All all the above 'labels' and inputs into a grid layout ref: labelsandinputs
+        self.filter_input_holder = QGroupBox()
+        self.input_button_holders = QGridLayout(self)
+        self.input_button_holders.addWidget(self.start_date_input_box, 0, 2, 1, 1)
+        self.input_button_holders.addWidget(self.end_date_input_box, 0, 3, 1, 1)
+        self.input_button_holders.addWidget(self.filter_box, 0, 4, 1, 1)
+        # self.input_button_holders.addWidget(self.reset_box, 0, 5, 1, 1)
+        self.filter_input_holder.setLayout(self.input_button_holders)
+
+        # cursor = self.data.cursor()
+        # alldata = cursor.execute("SELECT * FROM crashdata")
+        #self.filter_results = get_time_data(self.start_date_input.date(), self.end_date_input.date(), self.data)
+
+        #rounded_time=[]
+        #incident_count=[]
+
+        #for row in enumerate(self.filter_results):
+          #  rounded_time.append(row[1][0])
+          #  incident_count.append(row[1][1])
+
+        self.graphWidget = pg.PlotWidget()
+        self.setCentralWidget(self.graphWidget)
+
+        # Add Axis Labels
+        styles = {"color": "#126158", "font-size": "10px"}
+        self.graphWidget.setLabel("left", "Average Incidents", **styles)
+        self.graphWidget.setLabel("bottom", "Time of Day (H)", **styles)
+        #Add legend
+        #self.graphWidget.addLegend()
+        #Add grid
+        self.graphWidget.showGrid(x=True, y=True)
+        #Set Range
+        self.graphWidget.setXRange(0, 23, padding=0)
+        self.graphWidget.setYRange(0, 9000, padding=0)
+
+
+
+        self.todPagePerformFilter()
+
+    
+
+        
         tab_layout = QVBoxLayout()
-        tab_layout.addWidget(QLabel('Time of Day'))
+        tab_layout.addWidget(QLabel('Time2 of Day'))
+        tab_layout.addWidget(self.filter_input_holder) # This is labelsandinputs being added to the main tab
+        tab_layout.addWidget(self.graphWidget) # This is labelsandinputs being added to the main tab
         tab_layout.addStretch(5)
         tab = QWidget()
         tab.setLayout(tab_layout)
         return tab
+
 
     def alcoholPage(self):
         tab_layout = QVBoxLayout()
@@ -494,6 +588,27 @@ class Window(QMainWindow):
         self.searched_speed_chart.axes.pie(searched_speed_results, labels=self.search_labels)
         self.searched_speed_chart.axes.set_title('Number of Crashes per Speed Zone')
         self.speed_tab_layout.addWidget(self.searched_speed_chart)
+    
+    def todPagePerformFilter(self):
+        # alldata = cursor.execute("SELECT * FROM crashdata")
+        self.filter_results = get_time_data(self.start_date_input.date(), self.end_date_input.date(), self.data)
+
+        rounded_time=[]
+        incident_count=[]
+
+        for row in enumerate(self.filter_results):
+            rounded_time.append(row[1][0])
+            incident_count.append(row[1][1])
+        self.plot( rounded_time, incident_count, "", "#7FB815","Y")
+    
+    def plot(self, x, y, plotname, color, clear):
+        pen = pg.mkPen(color=color)
+
+        if clear =="Y" and   self.plotLine is not None:
+           self.plotLine.clear() 
+        self.plotLine = self.graphWidget.plot(x, y, name=plotname, pen=pen, symbol='o', symbolSize=10, symbolBrush=(color))
+
+        self.update()
 
 ###########################
 # Running the application #
