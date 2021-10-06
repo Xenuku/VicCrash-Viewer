@@ -4,13 +4,16 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QCursor, QPixmap
 from functions.user_period import find_data
 from functions.time_of_day import get_time_data
+from functions.alcohol_incident import get_alcohol_incidents
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
+import numpy as np
 
 # Globally used across all pages for embedding charts
 class PlotCanvas(FigureCanvas):
     def __init__(self, parent = None, width = 5, height = 5, dpi = 100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
+        fig = Figure(figsize=(width, height), dpi=dpi, tight_layout=True)
         self.axes = fig.add_subplot(111)
         self.axes.cla()
 
@@ -344,10 +347,10 @@ class Window(QMainWindow):
             incident_count.append(row[1][1])
 
         self.todchart = PlotCanvas(self, width=10, height=10, dpi=100)
-        self.todchart.axes.plot(rounded_time, incident_count, 'b--', label="Time of day trend?")
-        self.todchart.axes.set_xlabel("Time (hour)")
+        self.todchart.axes.plot(rounded_time, incident_count, 'b--', label="Time of day trend")
+        self.todchart.axes.set_xlabel("Time (24 hour)")
         self.todchart.axes.set_ylabel("Accidents (total)")
-        self.todchart.axes.set_title('TOD Accidents')
+        self.todchart.axes.set_title('Average Accidents per hour')
 
        
         self.filter_tab_layout = QVBoxLayout()
@@ -359,13 +362,85 @@ class Window(QMainWindow):
         tab.setLayout(self.filter_tab_layout)
         return tab
 
-
     def alcoholPage(self):
-        tab_layout = QVBoxLayout()
-        tab_layout.addWidget(QLabel('Alcohol'))
-        tab_layout.addStretch(5)
+        self.alcohol_start_date_input_box = QGroupBox("Start Date")
+        self.alcohol_start_date_input = QDateEdit(calendarPopup=True)
+        self.alcohol_start_date_input.setDate(QtCore.QDate(2013, 7, 1))
+        self.alcohol_start_date_layout = QVBoxLayout(self.alcohol_start_date_input_box)
+        self.alcohol_start_date_layout.addStretch(2)
+        self.alcohol_start_date_input_box.setLayout(self.alcohol_start_date_layout)
+        self.alcohol_start_date_layout.addWidget(self.alcohol_start_date_input)
+        self.alcohol_start_date_input_box.setStyleSheet("""
+            QGroupBox {
+                color: black;
+            }
+         """)
+
+        self.alcohol_end_date_input_box = QGroupBox("End Date")
+        self.alcohol_end_date_input = QDateEdit(calendarPopup=True)
+        self.alcohol_end_date_input.setDate(QtCore.QDate(2019, 3, 21))
+        self.alcohol_end_date_layout = QVBoxLayout(self.alcohol_end_date_input)
+        self.alcohol_end_date_layout.addStretch(2)
+        self.alcohol_end_date_input_box.setLayout(self.alcohol_end_date_layout)
+        self.alcohol_end_date_layout.addWidget(self.alcohol_end_date_input)
+        self.alcohol_end_date_input_box.setStyleSheet("""
+            QGroupBox {
+                color: black;
+            }
+         """)
+
+        # Search button label and button linked to todPagePerformFilterSearch function, that passes data to time_of_day.py
+        self.alcohol_box = QGroupBox("Search")
+        self.alcohol_button = QPushButton('Go', self)
+        self.alcohol_button.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        self.alcohol_button.clicked.connect(self.alcoholPageFilter)
+        self.alcohol_layout = QVBoxLayout(self.alcohol_box)
+        self.alcohol_layout.addStretch(2)
+        self.alcohol_box.setLayout(self.alcohol_layout)
+        self.alcohol_layout.addWidget(self.alcohol_button)
+        self.alcohol_box.setStyleSheet("""
+            QGroupBox {
+                color: black;
+            }
+         """)
+        
+        self.alcohol_input_holder = QGroupBox()
+        self.alcohol_input_button_holders = QGridLayout(self)
+        self.alcohol_input_button_holders.addWidget(self.alcohol_start_date_input_box, 0, 2, 1, 1)
+        self.alcohol_input_button_holders.addWidget(self.alcohol_end_date_input_box, 0, 3, 1, 1)
+        self.alcohol_input_button_holders.addWidget(self.alcohol_box, 0, 4, 1, 1)
+        self.alcohol_input_holder.setLayout(self.alcohol_input_button_holders)
+
+        initial_graph = get_alcohol_incidents(self.alcohol_start_date_input.date(), self.alcohol_end_date_input.date(), self.data)
+
+        labels = []
+        alcohol_incidents = []
+
+        for row in enumerate(initial_graph):
+            labels.append(row[1][0])
+            alcohol_incidents.append(row[1][1])
+        
+        x = np.arange(len(labels))
+        bar_width = 0.5
+        
+
+        self.alcohol_chart = PlotCanvas(self, width=8, height=6, dpi=100)
+        self.alcohol_chart.axes.bar(x, alcohol_incidents, bar_width, label="Alcohol Involved")
+        self.alcohol_chart.axes.set_xticks(x)
+        xlabels = self.alcohol_chart.axes.set_xticklabels(labels)
+        self.alcohol_chart.axes.set_ylabel("Accident amounts")
+        for i, label in enumerate(xlabels):
+            label.set_y(label.get_position()[1] - (i % 2) * 0.075)
+        self.alcohol_chart.axes.set_title('Alcohol involved collisions')
+
+       
+        self.alcohol_tab_layout = QVBoxLayout()
+        self.alcohol_tab_layout.addWidget(QLabel('Alcohol'))
+        self.alcohol_tab_layout.addWidget(self.alcohol_input_holder)
+        self.alcohol_tab_layout.addWidget(self.alcohol_chart)
+        self.alcohol_tab_layout.addStretch(5)
         tab = QWidget()
-        tab.setLayout(tab_layout)
+        tab.setLayout(self.alcohol_tab_layout)
         return tab
 
     def speedPage(self):
@@ -583,13 +658,15 @@ class Window(QMainWindow):
         if hasattr(self, 'filtered_tod_chart'):
             self.filter_tab_layout.removeWidget(self.filtered_tod_chart)
         self.filtered_tod_chart = PlotCanvas(self, width=10, height=10, dpi=100)
-        self.filtered_tod_chart.axes.plot(rounded_time, incident_count, 'g--', label="Time of day trend?")
-        self.filtered_tod_chart.axes.set_xlabel("Time (hour)")
+        self.filtered_tod_chart.axes.plot(rounded_time, incident_count, 'g--', label="Time of day trend")
+        self.filtered_tod_chart.axes.set_xlabel("Time (24 hour)")
         self.filtered_tod_chart.axes.set_ylabel("Accidents (total)")
-        self.filtered_tod_chart.axes.set_title('TOD Accidents')
-        self.filter_tab_layout.removeWidget(self.todchart)
+        self.filtered_tod_chart.axes.set_title('Average Accidents per hour')
+        self.filter_tab_layout.removeWidget(self.alcohol_chart)
         self.filter_tab_layout.addWidget(self.filtered_tod_chart)
 
+    def alcoholPageFilter(self):
+        print("yo")
 ###########################
 # Running the application #
 ###########################
