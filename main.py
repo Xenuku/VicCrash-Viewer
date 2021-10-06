@@ -351,10 +351,11 @@ class Window(QMainWindow):
             incident_count.append(row[1][1])
 
         self.todchart = PlotCanvas(self, width=10, height=10, dpi=100)
-        self.todchart.axes.plot(rounded_time, incident_count, 'b--', label="Time of day trend")
+        self.todchart.axes.plot(rounded_time, incident_count, 'b-*', label="Time of day trend")
+        self.todchart.axes.set_xticks(np.arange(min(rounded_time), max(rounded_time)+1, 1.0))
         self.todchart.axes.set_xlabel("Time (24 hour)")
         self.todchart.axes.set_ylabel("Accidents (total)")
-        self.todchart.axes.set_title('Average Accidents per hour')
+        self.todchart.axes.set_title('Accidents for Each Hour of the Day')
 
        
         self.filter_tab_layout = QVBoxLayout()
@@ -667,10 +668,11 @@ class Window(QMainWindow):
         if hasattr(self, 'filtered_tod_chart'):
             self.filter_tab_layout.removeWidget(self.filtered_tod_chart)
         self.filtered_tod_chart = PlotCanvas(self, width=10, height=10, dpi=100)
-        self.filtered_tod_chart.axes.plot(rounded_time, incident_count, 'g--', label="Time of day trend")
+        self.filtered_tod_chart.axes.plot(rounded_time, incident_count, 'g-*', label="Time of day trend")
         self.filtered_tod_chart.axes.set_xlabel("Time (24 hour)")
+        self.filtered_tod_chart.axes.set_xticks(np.arange(min(rounded_time), max(rounded_time)+1, 1.0))
         self.filtered_tod_chart.axes.set_ylabel("Accidents (total)")
-        self.filtered_tod_chart.axes.set_title('Average Accidents per hour')
+        self.filtered_tod_chart.axes.set_title('Accidents for Each Hour of the Day')
         self.filter_tab_layout.removeWidget(self.todchart)
         self.filter_tab_layout.addWidget(self.filtered_tod_chart)
 
