@@ -277,6 +277,10 @@ class Window(QMainWindow):
                 background-color: rgb(255, 255, 255);
                 color: rgb(0, 0, 0);
             }
+            QHeaderView::section {
+                background-color: #222222;
+                color: rgb(255, 255, 255);
+            }
         """)
         shadow = QGraphicsDropShadowEffect(blurRadius=15, xOffset=1, yOffset=1)
         self.tableView.setGraphicsEffect(shadow)
