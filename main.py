@@ -412,7 +412,6 @@ class Window(QMainWindow):
         self.alcohol_input_holder.setLayout(self.alcohol_input_button_holders)
 
         initial_graph = get_alcohol_incidents(self.alcohol_start_date_input.date(), self.alcohol_end_date_input.date(), self.data)
-        print('init', initial_graph)
 
         labels = []
         alcohol_incidents = []
