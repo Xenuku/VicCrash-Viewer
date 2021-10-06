@@ -12,9 +12,9 @@ import numpy as np
 
 # Globally used across all pages for embedding charts
 class PlotCanvas(FigureCanvas):
-    def __init__(self, parent = None, width = 5, height = 5, dpi = 100):
+    def __init__(self, parent = None, width = 5, height = 5, dpi = 100, plotspot=111):
         fig = Figure(figsize=(width, height), dpi=dpi, tight_layout=True)
-        self.axes = fig.add_subplot(111)
+        self.axes = fig.add_subplot(plotspot)
         self.axes.cla()
 
         FigureCanvas.__init__(self, fig)
@@ -412,32 +412,38 @@ class Window(QMainWindow):
         self.alcohol_input_holder.setLayout(self.alcohol_input_button_holders)
 
         initial_graph = get_alcohol_incidents(self.alcohol_start_date_input.date(), self.alcohol_end_date_input.date(), self.data)
+        print('init', initial_graph)
 
         labels = []
         alcohol_incidents = []
 
-        for row in enumerate(initial_graph):
+        for row in enumerate(initial_graph[0]):
             labels.append(row[1][0])
             alcohol_incidents.append(row[1][1])
-        
         x = np.arange(len(labels))
         bar_width = 0.5
-        
+        explode = [0.1, 0]
+        wedges = {'linewidth':0}
+        colors = ['#21E132', '#DB2DCE']
 
-        self.alcohol_chart = PlotCanvas(self, width=8, height=6, dpi=100)
-        self.alcohol_chart.axes.bar(x, alcohol_incidents, bar_width, label="Alcohol Involved")
-        self.alcohol_chart.axes.set_xticks(x)
-        xlabels = self.alcohol_chart.axes.set_xticklabels(labels)
-        self.alcohol_chart.axes.set_ylabel("Accident amounts")
+        self.alcohol_chart = PlotCanvas(self, width=5, height=5, dpi=100)
+        self.alcohol_chart.axes.pie(list(initial_graph[1][0]), labels=["Alcohol Involved", "No Alcohol"], explode=explode, colors=colors, shadow=True, startangle=270, wedgeprops=wedges, autopct='%1.1f%%')
+        self.alcohol_chart.axes.set_title('Alcohol vs No Alcohol related accidents')
+
+        self.alcohol_chart_2 = PlotCanvas(self, width=8, height=6, dpi=100)
+        self.alcohol_chart_2.axes.bar(x, alcohol_incidents, bar_width, label="Alcohol Involved")
+        self.alcohol_chart_2.axes.set_xticks(x)
+        xlabels = self.alcohol_chart_2.axes.set_xticklabels(labels)
+        self.alcohol_chart_2.axes.set_ylabel("Accident amounts")
         for i, label in enumerate(xlabels):
             label.set_y(label.get_position()[1] - (i % 2) * 0.075)
-        self.alcohol_chart.axes.set_title('Alcohol involved collisions')
+        self.alcohol_chart_2.axes.set_title('Alcohol involved collisions')
 
-       
         self.alcohol_tab_layout = QVBoxLayout()
         self.alcohol_tab_layout.addWidget(QLabel('Alcohol'))
         self.alcohol_tab_layout.addWidget(self.alcohol_input_holder)
         self.alcohol_tab_layout.addWidget(self.alcohol_chart)
+        self.alcohol_tab_layout.addWidget(self.alcohol_chart_2)
         self.alcohol_tab_layout.addStretch(5)
         tab = QWidget()
         tab.setLayout(self.alcohol_tab_layout)
@@ -662,11 +668,46 @@ class Window(QMainWindow):
         self.filtered_tod_chart.axes.set_xlabel("Time (24 hour)")
         self.filtered_tod_chart.axes.set_ylabel("Accidents (total)")
         self.filtered_tod_chart.axes.set_title('Average Accidents per hour')
-        self.filter_tab_layout.removeWidget(self.alcohol_chart)
+        self.filter_tab_layout.removeWidget(self.todchart)
         self.filter_tab_layout.addWidget(self.filtered_tod_chart)
 
     def alcoholPageFilter(self):
-        print("yo")
+        searched_alcohol_results = get_alcohol_incidents(self.alcohol_start_date_input.date(), self.alcohol_end_date_input.date(), self.data)
+
+        labels = []
+        alcohol_incidents = []
+
+        for row in enumerate(searched_alcohol_results[0]):
+            labels.append(row[1][0])
+            alcohol_incidents.append(row[1][1])
+        x = np.arange(len(labels))
+        bar_width = 0.5
+        explode = [0.1, 0]
+        wedges = {'linewidth':0}
+        colors = ['#21E132', '#DB2DCE']
+
+        if hasattr(self, 'searched_alcohol'):
+            self.alcohol_tab_layout.removeWidget(self.searched_alcohol)
+        if hasattr(self, 'searched_alcohol_chart_2'):
+            self.alcohol_tab_layout.removeWidget(self.searched_alcohol_chart_2)
+
+        self.searched_alcohol = PlotCanvas(self, width=5, height=5, dpi=100)
+        self.searched_alcohol.axes.pie(list(searched_alcohol_results[1][0]), labels=["Alcohol Involved", "No Alcohol"], explode=explode, colors=colors, shadow=True, startangle=270, wedgeprops=wedges, autopct='%1.1f%%')
+        self.searched_alcohol.axes.set_title('Alcohol vs No Alcohol related accidents')
+
+        self.searched_alcohol_chart_2 = PlotCanvas(self, width=8, height=6, dpi=100)
+        self.searched_alcohol_chart_2.axes.bar(x, alcohol_incidents, bar_width, label="Alcohol Involved")
+        self.searched_alcohol_chart_2.axes.set_xticks(x)
+        xlabels = self.searched_alcohol_chart_2.axes.set_xticklabels(labels)
+        self.searched_alcohol_chart_2.axes.set_ylabel("Accident amounts")
+        for i, label in enumerate(xlabels):
+            label.set_y(label.get_position()[1] - (i % 2) * 0.075)
+        self.searched_alcohol_chart_2.axes.set_title('Alcohol involved collisions')
+        self.alcohol_tab_layout.removeWidget(self.alcohol_chart)
+        self.alcohol_tab_layout.removeWidget(self.alcohol_chart_2)
+        self.alcohol_tab_layout.addWidget(self.searched_alcohol)
+        self.alcohol_tab_layout.addWidget(self.searched_alcohol_chart_2)
+
 ###########################
 # Running the application #
 ###########################
