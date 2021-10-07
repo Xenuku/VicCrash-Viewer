@@ -277,6 +277,10 @@ class Window(QMainWindow):
                 background-color: rgb(255, 255, 255);
                 color: rgb(0, 0, 0);
             }
+            QHeaderView::section {
+                background-color: #222222;
+                color: rgb(255, 255, 255);
+            }
         """)
         shadow = QGraphicsDropShadowEffect(blurRadius=15, xOffset=1, yOffset=1)
         self.tableView.setGraphicsEffect(shadow)
@@ -347,10 +351,11 @@ class Window(QMainWindow):
             incident_count.append(row[1][1])
 
         self.todchart = PlotCanvas(self, width=10, height=10, dpi=100)
-        self.todchart.axes.plot(rounded_time, incident_count, 'b--', label="Time of day trend")
+        self.todchart.axes.plot(rounded_time, incident_count, 'b-*', label="Time of day trend")
+        self.todchart.axes.set_xticks(np.arange(min(rounded_time), max(rounded_time)+1, 1.0))
         self.todchart.axes.set_xlabel("Time (24 hour)")
         self.todchart.axes.set_ylabel("Accidents (total)")
-        self.todchart.axes.set_title('Average Accidents per hour')
+        self.todchart.axes.set_title('Accidents for Each Hour of the Day')
 
        
         self.filter_tab_layout = QVBoxLayout()
@@ -427,16 +432,16 @@ class Window(QMainWindow):
 
         self.alcohol_chart = PlotCanvas(self, width=5, height=5, dpi=100)
         self.alcohol_chart.axes.pie(list(initial_graph[1][0]), labels=["Alcohol Involved", "No Alcohol"], explode=explode, colors=colors, shadow=True, startangle=270, wedgeprops=wedges, autopct='%1.1f%%')
-        self.alcohol_chart.axes.set_title('Alcohol vs No Alcohol related accidents')
+        self.alcohol_chart.axes.set_title('Alcohol vs No Alcohol Accidents')
 
         self.alcohol_chart_2 = PlotCanvas(self, width=8, height=6, dpi=100)
         self.alcohol_chart_2.axes.bar(x, alcohol_incidents, bar_width, label="Alcohol Involved")
         self.alcohol_chart_2.axes.set_xticks(x)
         xlabels = self.alcohol_chart_2.axes.set_xticklabels(labels)
-        self.alcohol_chart_2.axes.set_ylabel("Accident amounts")
+        self.alcohol_chart_2.axes.set_ylabel("Amount of Accidents")
         for i, label in enumerate(xlabels):
             label.set_y(label.get_position()[1] - (i % 2) * 0.075)
-        self.alcohol_chart_2.axes.set_title('Alcohol involved collisions')
+        self.alcohol_chart_2.axes.set_title('Alcohol Involved Accidents')
 
         self.alcohol_tab_layout = QVBoxLayout()
         self.alcohol_tab_layout.addWidget(QLabel('Alcohol'))
@@ -663,10 +668,11 @@ class Window(QMainWindow):
         if hasattr(self, 'filtered_tod_chart'):
             self.filter_tab_layout.removeWidget(self.filtered_tod_chart)
         self.filtered_tod_chart = PlotCanvas(self, width=10, height=10, dpi=100)
-        self.filtered_tod_chart.axes.plot(rounded_time, incident_count, 'g--', label="Time of day trend")
+        self.filtered_tod_chart.axes.plot(rounded_time, incident_count, 'g-*', label="Time of day trend")
         self.filtered_tod_chart.axes.set_xlabel("Time (24 hour)")
+        self.filtered_tod_chart.axes.set_xticks(np.arange(min(rounded_time), max(rounded_time)+1, 1.0))
         self.filtered_tod_chart.axes.set_ylabel("Accidents (total)")
-        self.filtered_tod_chart.axes.set_title('Average Accidents per hour')
+        self.filtered_tod_chart.axes.set_title('Accidents for Each Hour of the Day')
         self.filter_tab_layout.removeWidget(self.todchart)
         self.filter_tab_layout.addWidget(self.filtered_tod_chart)
 
@@ -692,16 +698,16 @@ class Window(QMainWindow):
 
         self.searched_alcohol = PlotCanvas(self, width=5, height=5, dpi=100)
         self.searched_alcohol.axes.pie(list(searched_alcohol_results[1][0]), labels=["Alcohol Involved", "No Alcohol"], explode=explode, colors=colors, shadow=True, startangle=270, wedgeprops=wedges, autopct='%1.1f%%')
-        self.searched_alcohol.axes.set_title('Alcohol vs No Alcohol related accidents')
+        self.searched_alcohol.axes.set_title('Alcohol vs No Alcohol Accidents')
 
         self.searched_alcohol_chart_2 = PlotCanvas(self, width=8, height=6, dpi=100)
         self.searched_alcohol_chart_2.axes.bar(x, alcohol_incidents, bar_width, label="Alcohol Involved")
         self.searched_alcohol_chart_2.axes.set_xticks(x)
         xlabels = self.searched_alcohol_chart_2.axes.set_xticklabels(labels)
-        self.searched_alcohol_chart_2.axes.set_ylabel("Accident amounts")
+        self.searched_alcohol_chart_2.axes.set_ylabel("Amount of Accidents")
         for i, label in enumerate(xlabels):
             label.set_y(label.get_position()[1] - (i % 2) * 0.075)
-        self.searched_alcohol_chart_2.axes.set_title('Alcohol involved collisions')
+        self.searched_alcohol_chart_2.axes.set_title('Alcohol Involved Accidents')
         self.alcohol_tab_layout.removeWidget(self.alcohol_chart)
         self.alcohol_tab_layout.removeWidget(self.alcohol_chart_2)
         self.alcohol_tab_layout.addWidget(self.searched_alcohol)
