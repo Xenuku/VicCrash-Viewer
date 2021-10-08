@@ -1,6 +1,8 @@
 from PyQt5.QtCore import QDate, QDateTime
 
-
+# This function filters the entire data set, returning selected relevant columns
+# between the two dates from the inputs on the home page, with an optional keyword to search for
+# it then returns the data to the main function to be displayed in a table with custom headers
 def find_data(start_date, end_date, search_term, data):
     startdate = start_date.toString('yyyy-MM-dd')
     enddate = end_date.toString('yyyy-MM-dd')
@@ -31,6 +33,4 @@ def find_data(start_date, end_date, search_term, data):
                     FROM crashdata WHERE date(accident_date) BETWEEN date('{startdate}') AND date('{enddate}')
                 """)
     result = c.fetchall()
-    # debug to check inputs
-    print(f"Search input from home page! START: {startdate} and END: {enddate} and the keyword is {search_term}")
     return result

@@ -23,7 +23,7 @@ class PlotCanvas(FigureCanvas):
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.data = sqlite3.connect('./data/crash.db')
+        self.data = sqlite3.connect('./data/crash.db') # Load the database
         
         # Window settings
         self.setWindowTitle("VicCrash Viewer")
@@ -32,6 +32,7 @@ class Window(QMainWindow):
         self.resize(self.width, self.height)
         self.move(50, 10)
 
+        # The logo in the top left corner of the application
         self.logo_label = QLabel(self)
         self.logo = QtGui.QPixmap('./data/logo.png').scaled(250, 175)
         self.logo_label.setPixmap(self.logo)
@@ -72,6 +73,7 @@ class Window(QMainWindow):
 
 
     def setupUI(self):
+        # Create the sidebar and add the buttons
         sidebar = QVBoxLayout()
         sidebar.addWidget(self.logo_label)
         sidebar.addWidget(self.home)
@@ -102,6 +104,7 @@ class Window(QMainWindow):
             }
         """)
 
+        # Create the main widget used to hold the 'pages'
         self.main_widget = QTabWidget()
         self.main_widget.tabBar().setObjectName("mainTab")
 
@@ -112,7 +115,7 @@ class Window(QMainWindow):
         
 
         self.main_widget.setCurrentIndex(0)
-        #Hide the tabs at the top, we're using the sidebar nav as per design doc
+        # Hide the tabs at the top, we're using the sidebar nav as per design doc
         self.main_widget.setStyleSheet("""
                 QTabBar::tab {
                     width: 0; 
@@ -168,7 +171,6 @@ class Window(QMainWindow):
 
     def homePage(self):
         # Search/date boxes/inputs
-        # "Label"
         self.keyword_search_box = QGroupBox("Search Term")
         # The input box, will grab value for search
         self.keyword_search_input = QLineEdit(self)
@@ -294,6 +296,7 @@ class Window(QMainWindow):
         return tab
 
     def todPage(self):
+        # Start date label and input
         self.filter_start_date_input_box = QGroupBox("Start Date")
         self.filter_start_date_input = QDateEdit(calendarPopup=True)
         self.filter_start_date_input.setDate(QtCore.QDate(2013, 7, 1))
@@ -307,7 +310,7 @@ class Window(QMainWindow):
             }
          """)
 
-        # The end date label and input, need to set a 'max' date from the data
+        # The end date label and input
         self.filter_end_date_input_box = QGroupBox("End Date")
         self.filter_end_date_input = QDateEdit(calendarPopup=True)
         self.filter_end_date_input.setDate(QtCore.QDate(2019, 3, 21))
@@ -368,6 +371,7 @@ class Window(QMainWindow):
         return tab
 
     def alcoholPage(self):
+        # Start date label and input
         self.alcohol_start_date_input_box = QGroupBox("Start Date")
         self.alcohol_start_date_input = QDateEdit(calendarPopup=True)
         self.alcohol_start_date_input.setDate(QtCore.QDate(2013, 7, 1))
@@ -380,7 +384,7 @@ class Window(QMainWindow):
                 color: black;
             }
          """)
-
+        # End date label and input
         self.alcohol_end_date_input_box = QGroupBox("End Date")
         self.alcohol_end_date_input = QDateEdit(calendarPopup=True)
         self.alcohol_end_date_input.setDate(QtCore.QDate(2019, 3, 21))
@@ -394,7 +398,7 @@ class Window(QMainWindow):
             }
          """)
 
-        # Search button label and button linked to todPagePerformFilterSearch function, that passes data to time_of_day.py
+        # Search button label and button linked to alcoholPageFilter function
         self.alcohol_box = QGroupBox("Search")
         self.alcohol_button = QPushButton('Go', self)
         self.alcohol_button.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
@@ -430,10 +434,12 @@ class Window(QMainWindow):
         wedges = {'linewidth':0}
         colors = ['#21E132', '#DB2DCE']
 
+        # Plotting the pie chart to show alcohol vs non alcohol
         self.alcohol_chart = PlotCanvas(self, width=5, height=5, dpi=100)
         self.alcohol_chart.axes.pie(list(initial_graph[1][0]), labels=["Alcohol Involved", "No Alcohol"], explode=explode, colors=colors, shadow=True, startangle=270, wedgeprops=wedges, autopct='%1.1f%%')
         self.alcohol_chart.axes.set_title('Alcohol vs No Alcohol Accidents')
 
+        # Plotting the bar chart to show amount of accidents involving alcohol by incident type
         self.alcohol_chart_2 = PlotCanvas(self, width=8, height=6, dpi=100)
         self.alcohol_chart_2.axes.bar(x, alcohol_incidents, bar_width, label="Alcohol Involved")
         self.alcohol_chart_2.axes.set_xticks(x)
@@ -544,6 +550,7 @@ class Window(QMainWindow):
         explode = [0.3, 0, 0,0,0,0,0,0]
         wedges = {'linewidth':0}
         colors = ['#21E132', '#DB2DCE', '#D22424', '#2542D0', '#D9E72C', '#1BD8D3', '#D68919', '#6624E2']
+        # Plotting the speed pie chart, exploding the smaller speed zones so they do not overlap
         self.speed_chart = PlotCanvas(self, width=10, height=10, dpi=100)
         self.speed_chart.axes.pie(speed_results, explode=explode, labels=self.speed_labels, colors=colors, shadow=True, startangle=270, wedgeprops=wedges, autopct='%1.1f%%')
         self.speed_chart.axes.set_title('Number of Accidents per Speed Zone')
@@ -602,12 +609,13 @@ class Window(QMainWindow):
             ]
             self.search_results_model.appendRow(items)
     
-    # When the user wants to go back to the raw dataset instead of search results
+    
     def homePageResetTable(self):
+        # When the user wants to go back to the raw dataset instead of search results
         self.tableView.setModel(self.model)
     
     def speedPagePerformSearch(self):
-        # Update the chart data here
+        # Getting new data to plot for speed zones
         cursor = self.data.cursor()
         speed_search_start_date = self.speed_start_date_input.date().toString('yyyy-MM-dd')
         speed_search_end_date = self.speed_end_date_input.date().toString('yyyy-MM-dd')
@@ -653,6 +661,7 @@ class Window(QMainWindow):
         explode = [0.3, 0, 0,0,0,0,0,0]
         wedges = {'linewidth':0}
         colors = ['#21E132', '#DB2DCE', '#D22424', '#2542D0', '#D9E72C', '#1BD8D3', '#D68919', '#6624E2']
+        # Plot the new chart
         self.searched_speed_chart = PlotCanvas(self, width=10, height=10, dpi=100)
         self.searched_speed_chart.axes.pie(searched_speed_results, labels=self.search_labels, explode=explode, colors=colors, shadow=True, startangle=270, wedgeprops=wedges, autopct='%1.1f%%')
         self.searched_speed_chart.axes.set_title('Number of Accidents per Speed Zone')
@@ -665,18 +674,21 @@ class Window(QMainWindow):
         for row in enumerate(filter_results):
             rounded_time.append(row[1][0])
             incident_count.append(row[1][1])
+        # Delete the 'searched' chart each time, create a new one with the new results
         if hasattr(self, 'filtered_tod_chart'):
             self.filter_tab_layout.removeWidget(self.filtered_tod_chart)
+        # Plot the new chart
         self.filtered_tod_chart = PlotCanvas(self, width=10, height=10, dpi=100)
         self.filtered_tod_chart.axes.plot(rounded_time, incident_count, 'g-*', label="Time of day trend")
         self.filtered_tod_chart.axes.set_xlabel("Time (24 hour)")
         self.filtered_tod_chart.axes.set_xticks(np.arange(min(rounded_time), max(rounded_time)+1, 1.0))
         self.filtered_tod_chart.axes.set_ylabel("Accidents (total)")
         self.filtered_tod_chart.axes.set_title('Accidents for Each Hour of the Day')
-        self.filter_tab_layout.removeWidget(self.todchart)
+        self.filter_tab_layout.removeWidget(self.todchart) # Delete the initial chart
         self.filter_tab_layout.addWidget(self.filtered_tod_chart)
 
     def alcoholPageFilter(self):
+        # Get the data from the function
         searched_alcohol_results = get_alcohol_incidents(self.alcohol_start_date_input.date(), self.alcohol_end_date_input.date(), self.data)
 
         labels = []
@@ -691,15 +703,18 @@ class Window(QMainWindow):
         wedges = {'linewidth':0}
         colors = ['#21E132', '#DB2DCE']
 
+        # Delete both of the 'searched' charts if they exist, to update with new data
         if hasattr(self, 'searched_alcohol'):
             self.alcohol_tab_layout.removeWidget(self.searched_alcohol)
         if hasattr(self, 'searched_alcohol_chart_2'):
             self.alcohol_tab_layout.removeWidget(self.searched_alcohol_chart_2)
 
+        # Plot the new pie chart
         self.searched_alcohol = PlotCanvas(self, width=5, height=5, dpi=100)
         self.searched_alcohol.axes.pie(list(searched_alcohol_results[1][0]), labels=["Alcohol Involved", "No Alcohol"], explode=explode, colors=colors, shadow=True, startangle=270, wedgeprops=wedges, autopct='%1.1f%%')
         self.searched_alcohol.axes.set_title('Alcohol vs No Alcohol Accidents')
-
+        
+        # Plot the new bar chart
         self.searched_alcohol_chart_2 = PlotCanvas(self, width=8, height=6, dpi=100)
         self.searched_alcohol_chart_2.axes.bar(x, alcohol_incidents, bar_width, label="Alcohol Involved")
         self.searched_alcohol_chart_2.axes.set_xticks(x)
@@ -708,7 +723,7 @@ class Window(QMainWindow):
         for i, label in enumerate(xlabels):
             label.set_y(label.get_position()[1] - (i % 2) * 0.075)
         self.searched_alcohol_chart_2.axes.set_title('Alcohol Involved Accidents')
-        self.alcohol_tab_layout.removeWidget(self.alcohol_chart)
+        self.alcohol_tab_layout.removeWidget(self.alcohol_chart) # Delete the initial charts
         self.alcohol_tab_layout.removeWidget(self.alcohol_chart_2)
         self.alcohol_tab_layout.addWidget(self.searched_alcohol)
         self.alcohol_tab_layout.addWidget(self.searched_alcohol_chart_2)
@@ -721,10 +736,10 @@ if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     pixmap = QPixmap('data/logo.png').scaled(250, 175)
     splash = QSplashScreen(pixmap)
-    splash.show()
+    splash.show() # Creating a splash screen to show whilst the application is loading, so the user knows something is happening
 
     mainApp = Window()
-    splash.finish(mainApp)
+    splash.finish(mainApp) # once the application loads, delete the splash screen
     
     mainApp.setStyleSheet("""
         QMainWindow {
