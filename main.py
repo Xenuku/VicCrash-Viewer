@@ -740,7 +740,7 @@ if __name__ == '__main__':
 
     mainApp = Window()
     splash.finish(mainApp) # once the application loads, delete the splash screen
-    
+    mainApp.setWindowIcon(QtGui.QIcon('vcv.ico'))
     mainApp.setStyleSheet("""
         QMainWindow {
             background-color: rgb(45, 57, 69);
