@@ -25,7 +25,7 @@ class Window(QMainWindow):
     def __init__(self):
         super().__init__()
         self.data = sqlite3.connect('./data/crash.db') # Load the database
-        
+
         # Window settings
         self.setWindowTitle("VicCrash Viewer")
         self.width = 1500
@@ -38,7 +38,7 @@ class Window(QMainWindow):
         self.logo = QtGui.QPixmap('./data/logo.png').scaled(250, 175)
         self.logo_label.setPixmap(self.logo)
         self.logo_label.setStyleSheet("padding-bottom: 30px;")
-        
+
         # Sidebar buttons, styled in setupUI
         # Home Button nav button
         self.home = QPushButton('HOME', self)
@@ -113,7 +113,7 @@ class Window(QMainWindow):
         self.main_widget.addTab(self.todpage, 'Time of Day')
         self.main_widget.addTab(self.alcoholpage, 'Alcohol')
         self.main_widget.addTab(self.speedpage, 'Speed')
-        
+
 
         self.main_widget.setCurrentIndex(0)
         # Hide the tabs at the top, we're using the sidebar nav as per design doc
@@ -148,7 +148,7 @@ class Window(QMainWindow):
         main_layout_widget = QWidget()
         main_layout_widget.setLayout(main_layout)
         self.setCentralWidget(main_layout_widget)
-    
+
     ###################
     # Sidebar Buttons #
     ###################
@@ -161,7 +161,7 @@ class Window(QMainWindow):
 
     def alcoButton(self):
         self.main_widget.setCurrentIndex(2)
-    
+
     def speedButton(self):
         self.main_widget.setCurrentIndex(3)
 
@@ -176,7 +176,7 @@ class Window(QMainWindow):
         # The input box, will grab value for search
         self.keyword_search_input = QLineEdit(self)
         self.keyword_search_input.setPlaceholderText("Enter Keyword")
-       
+
         # Creating a nice 'label' similar to the design documents
         # Adding the input to the 'label' box
         self.keyword_search_layout = QVBoxLayout(self.keyword_search_box)
@@ -353,7 +353,7 @@ class Window(QMainWindow):
                 color: black;
             }
         """)
-        
+
         self.filter_input_holder = QGroupBox()
         self.filter_input_button_holders = QGridLayout(self)
         self.filter_input_button_holders.addWidget(self.filter_start_date_input_box, 0, 2, 1, 1)
@@ -374,9 +374,9 @@ class Window(QMainWindow):
         self.todchart.axes.set_xticks(np.arange(min(rounded_time), max(rounded_time)+1, 1.0))
         self.todchart.axes.set_xlabel("Time (24 hour)")
         self.todchart.axes.set_ylabel("Accidents (total)")
-        self.todchart.axes.set_title(f"Average Accidents for Each Hour of the Day  \n ({self.filter_start_date_input.date().toString('dd/MM/yyyy')}-{self.filter_end_date_input.date().toString('dd/MM/yyyy')})")
+        self.todchart.axes.set_title(f"Accidents for Each Hour of the Day  \n ({self.filter_start_date_input.date().toString('dd/MM/yyyy')}-{self.filter_end_date_input.date().toString('dd/MM/yyyy')})")
 
-       
+
         self.filter_tab_layout = QVBoxLayout()
         self.filter_tab_layout.addWidget(QLabel('Time of Day'))
         self.filter_tab_layout.addWidget(self.filter_input_holder)
@@ -443,7 +443,7 @@ class Window(QMainWindow):
                 color: black;
             }
         """)
-        
+
         self.alcohol_input_holder = QGroupBox()
         self.alcohol_input_button_holders = QGridLayout(self)
         self.alcohol_input_button_holders.addWidget(self.alcohol_start_date_input_box, 0, 2, 1, 1)
@@ -520,7 +520,7 @@ class Window(QMainWindow):
                 color: black;
             }
          """)
-        
+
         # Speed chart filter button, connects to function speedPagePerformSearch
         self.speed_search_box = QGroupBox("Search")
         self.speed_search_button = QPushButton('Filter', self)
@@ -710,7 +710,7 @@ class Window(QMainWindow):
             self.speed_tab_layout.removeWidget(self.searched_speed_chart)
         explode = [0.3, 0, 0,0,0,0,0,0]
         wedges = {'linewidth':0}
-        colors = ['#2542D0', '#D22424', '#D68919', '#21E132', '#D9E72C', '#1BD8D3', '#6624E2', '#DB2DCE',]
+        colors = ['#2542D0', '#D22424', '#D9E72C', '#21E132', '#D68919', '#1BD8D3', '#6624E2', '#DB2DCE',]
         # Plot the new chart
         self.searched_speed_chart = PlotCanvas(self, width=10, height=10, dpi=100)
         self.searched_speed_chart.axes.pie(searched_speed_results, labels=self.search_labels, explode=explode, colors=colors, shadow=True, startangle=270, wedgeprops=wedges, autopct='%1.1f%%')
@@ -734,7 +734,7 @@ class Window(QMainWindow):
         self.filtered_tod_chart.axes.set_xlabel("Time (24 hour)")
         self.filtered_tod_chart.axes.set_xticks(np.arange(min(rounded_time), max(rounded_time)+1, 1.0))
         self.filtered_tod_chart.axes.set_ylabel("Accidents (total)")
-        self.filtered_tod_chart.axes.set_title(f"Average Accidents for Each Hour of the Day  \n ({self.filter_start_date_input.date().toString('dd/MM/yyyy')}-{self.filter_end_date_input.date().toString('dd/MM/yyyy')})")
+        self.filtered_tod_chart.axes.set_title(f"Accidents for Each Hour of the Day  \n ({self.filter_start_date_input.date().toString('dd/MM/yyyy')}-{self.filter_end_date_input.date().toString('dd/MM/yyyy')})")
         self.filter_tab_layout.removeWidget(self.todchart) # Delete the initial chart
         self.tod_chart_save.clicked.disconnect()
         self.tod_chart_save.clicked.connect(partial(self.saveChart, self.filtered_tod_chart, f"search-results-tod-chart-{self.filter_start_date_input.date().toString('yyyy-MM-dd')}-{self.filter_end_date_input.date().toString('yyyy-MM-dd')}"))
@@ -743,7 +743,6 @@ class Window(QMainWindow):
     def alcoholPageFilter(self):
         # Get the data from the function
         searched_alcohol_results = get_alcohol_incidents(self.alcohol_start_date_input.date(), self.alcohol_end_date_input.date(), self.data)
-
         labels = []
         alcohol_incidents = []
 
