@@ -10,25 +10,87 @@ import main
 
 
 class TestMain(unittest.TestCase):
+    # HOME PAGE FUNCTIONS
 
-    # Testing with end date before start date
-    def test_user_period(self):
+    # Test filter function when no keyword is used
+    def test_blank_keyword_home(self):
         data = sqlite3.connect('./data/crash.db')
-        result = user_period.find_data('2017-01-15', '2016-01-15', "", data)
-        print(result)
+        result = user_period.find_data('2013-07-01', '2019-03-21', "", data)
+        self.assertEqual(result, )
         
-   
-    # Test that time of day function can extract data between dates
-    def test_time_of_day(self):
+    # Test filter function when start date greater than end date
+    def test_date_validity_home(self):
         data = sqlite3.connect('./data/crash.db')
-        result = time_of_day.get_time_data('2016-01-15', '2017-01-15', data)
+        result = user_period.find_data('2017-01-15', '2016-01-15', "Collision", data)
+        self.assertEqual(result, )
+
+    # Test filter function when dates are out of range
+    def test_date_range_home(self):
+        data = sqlite3.connect('./data/crash.db')
+        result = user_period.find_data('2020-01-15', '2021-01-15', "Collision", data)
+        self.assertEqual(result, )
+
+    # Test filter function when no keyword with no matches is used
+    def test_alcohol_incident_home(self):
+        data = sqlite3.connect('./data/crash.db')
+        result = user_period.find_data('2013-07-01', '2019-03-21', "Testing123", data)
         self.assertEqual(result, )
 
 
-    # Test that time of day function can extract data between dates
-    def test_alcohol_incident(self):
+    # TIME OF DAY PAGE FUNCTIONS
+
+    # Test load page
+    def test_load_page_tod(self):
         data = sqlite3.connect('./data/crash.db')
-        result = alcohol_incident.get_alcohol_incidents('2016-01-15', '2017-01-15', data)
+        result = time_of_day.get_time_data('2013-07-01', '2019-03-21', data)
+        self.assertEqual(result, )
+
+    # Test setting start and end date
+    def test_set_dates_tod(self):
+        data = sqlite3.connect('./data/crash.db')
+        result = time_of_day.get_time_data('2015-07-01', '2017-03-21', data)
+        self.assertEqual(result, )
+
+    # Test setting start date as greater than end date
+    def test_date_validity_tod(self):
+        data = sqlite3.connect('./data/crash.db')
+        result = time_of_day.get_time_data('2017-01-15', '2016-01-15', data)
+        self.assertEqual(result, )
+
+
+    # SPEED PAGE FUNCTIONS
+
+    # Test load page
+    def test_load_page_speed(self):
+        data = sqlite3.connect('./data/crash.db')
+
+    # Test setting start and end date
+    def test_set_dates_speed(self):
+        data = sqlite3.connect('./data/crash.db')
+
+    # Test setting start date as greater than end date
+    def test_date_validity_speed(self):
+        data = sqlite3.connect('./data/crash.db')
+
+
+    # ALCOHOL PAGE FUNCTIONS
+
+    # Test load page
+    def test_load_page_alcohol(self):
+        data = sqlite3.connect('./data/crash.db')
+        result = alcohol_incident.get_alcohol_incidents('2013-07-01', '2019-03-21', data)
+        self.assertEqual(result, )
+
+    # Test setting start and end date
+    def test_set_dates_alcohol(self):
+        data = sqlite3.connect('./data/crash.db')
+        result = alcohol_incident.get_alcohol_incidents('2015-07-01', '2017-03-21', data)
+        self.assertEqual(result, )
+
+    # Test setting start date as greater than end date
+    def test_date_validity_alcohol(self):
+        data = sqlite3.connect('./data/crash.db')
+        result = alcohol_incident.get_alcohol_incidents('2017-01-15', '2016-01-15', data)
         self.assertEqual(result, )
 
 
