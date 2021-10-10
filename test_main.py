@@ -44,25 +44,25 @@ class TestMain(unittest.TestCase):
         self.assertEqual(len(result), 104) # Should have 104 results for 'animal'
 
 
-    # # TIME OF DAY PAGE FUNCTIONS
+    # TIME OF DAY PAGE FUNCTIONS
 
-    # # Test load page
-    # def test_load_page_tod(self):
-    #     data = sqlite3.connect('./data/crash.db')
-    #     result = time_of_day.get_time_data('2013-07-01', '2019-03-21', data)
-    #     self.assertEqual(result, )
+    # Test load page
+    def test_load_page_tod(self):
+        data = sqlite3.connect('./data/crash.db')
+        result = time_of_day.get_time_data(QtCore.QDate(2013, 7, 1), QtCore.QDate(2019, 3, 21), data)
+        self.assertEqual(len(result), 24) # Should have 24 results
 
-    # # Test setting start and end date
-    # def test_set_dates_tod(self):
-    #     data = sqlite3.connect('./data/crash.db')
-    #     result = time_of_day.get_time_data('2015-07-01', '2017-03-21', data)
-    #     self.assertEqual(result, )
+    # Test setting start and end date
+    def test_set_dates_tod(self):
+        data = sqlite3.connect('./data/crash.db')
+        result = time_of_day.get_time_data(QtCore.QDate(2013, 7, 1), QtCore.QDate(2015, 3, 21), data)
+        self.assertEqual(len(result), 24) # Should have 24 results
 
-    # # Test setting start date as greater than end date
-    # def test_date_validity_tod(self):
-    #     data = sqlite3.connect('./data/crash.db')
-    #     result = time_of_day.get_time_data('2017-01-15', '2016-01-15', data)
-    #     self.assertEqual(result, )
+    # Test setting start date as greater than end date
+    def test_date_validity_tod(self):
+        data = sqlite3.connect('./data/crash.db')
+        result = time_of_day.get_time_data(QtCore.QDate(2017, 7, 1), QtCore.QDate(2015, 7, 1), data)
+        self.assertEqual(len(result), 0)
 
 
     # # SPEED PAGE FUNCTIONS
@@ -80,25 +80,33 @@ class TestMain(unittest.TestCase):
     #     data = sqlite3.connect('./data/crash.db')
 
 
-    # # ALCOHOL PAGE FUNCTIONS
+    # ALCOHOL PAGE FUNCTIONS
 
-    # # Test load page
-    # def test_load_page_alcohol(self):
-    #     data = sqlite3.connect('./data/crash.db')
-    #     result = alcohol_incident.get_alcohol_incidents('2013-07-01', '2019-03-21', data)
-    #     self.assertEqual(result, )
+    # Test load page
+    def test_load_page_alcohol(self):
+        data = sqlite3.connect('./data/crash.db')
+        result = alcohol_incident.get_alcohol_incidents(QtCore.QDate(2013, 7, 1), QtCore.QDate(2019, 3, 21), data)
+        self.assertEqual(len(result[0]), 9) #incidents
+        # Should have 9 results
+        self.assertEqual(len(result[1]), 1) #achohol count
+        # Should have 1 result
+        
 
-    # # Test setting start and end date
-    # def test_set_dates_alcohol(self):
-    #     data = sqlite3.connect('./data/crash.db')
-    #     result = alcohol_incident.get_alcohol_incidents('2015-07-01', '2017-03-21', data)
-    #     self.assertEqual(result, )
+    # Test setting start and end date
+    def test_set_dates_alcohol(self):
+        data = sqlite3.connect('./data/crash.db')
+        result = alcohol_incident.get_alcohol_incidents(QtCore.QDate(2015, 7, 1), QtCore.QDate(2017, 3, 21), data)
+        self.assertEqual(len(result[0]), 8) #incidents
+        # Should have 9 results
+        self.assertEqual(len(result[1]), 1) #achohol count
+        # Should have 1 result
 
-    # # Test setting start date as greater than end date
-    # def test_date_validity_alcohol(self):
-    #     data = sqlite3.connect('./data/crash.db')
-    #     result = alcohol_incident.get_alcohol_incidents('2017-01-15', '2016-01-15', data)
-    #     self.assertEqual(result, )
+    # Test setting start date as greater than end date
+    def test_date_validity_alcohol(self):
+        data = sqlite3.connect('./data/crash.db')
+        result = alcohol_incident.get_alcohol_incidents(QtCore.QDate(2017, 1, 15), QtCore.QDate(2016, 1, 15), data)
+        self.assertEqual(len(result[0]), 0) #incidents
+        self.assertEqual(len(result[1]), 0) #achohol count
 
 
 
