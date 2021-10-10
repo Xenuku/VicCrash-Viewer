@@ -9,6 +9,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import numpy as np
+from functools import partial
 
 # Globally used across all pages for embedding charts
 class PlotCanvas(FigureCanvas):
@@ -338,12 +339,27 @@ class Window(QMainWindow):
                 color: black;
             }
          """)
+
+        # Save chart button
+        self.tod_save_figure_box = QGroupBox("Export")
+        self.tod_chart_save = QPushButton('Save', self)
+        self.tod_chart_save.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        self.tod_chart_save_layout = QVBoxLayout(self.tod_save_figure_box)
+        self.tod_chart_save_layout.addStretch(2)
+        self.tod_save_figure_box.setLayout(self.tod_chart_save_layout)
+        self.tod_chart_save_layout.addWidget(self.tod_chart_save)
+        self.tod_save_figure_box.setStyleSheet("""
+            QGroupBox {
+                color: black;
+            }
+        """)
         
         self.filter_input_holder = QGroupBox()
         self.filter_input_button_holders = QGridLayout(self)
         self.filter_input_button_holders.addWidget(self.filter_start_date_input_box, 0, 2, 1, 1)
         self.filter_input_button_holders.addWidget(self.filter_end_date_input_box, 0, 3, 1, 1)
         self.filter_input_button_holders.addWidget(self.filter_box, 0, 4, 1, 1)
+        self.filter_input_button_holders.addWidget(self.tod_save_figure_box, 0, 5, 1, 1)
         self.filter_input_holder.setLayout(self.filter_input_button_holders)
 
         initial_graph = get_time_data(self.filter_start_date_input.date(), self.filter_end_date_input.date(), self.data)
@@ -365,6 +381,7 @@ class Window(QMainWindow):
         self.filter_tab_layout.addWidget(QLabel('Time of Day'))
         self.filter_tab_layout.addWidget(self.filter_input_holder)
         self.filter_tab_layout.addWidget(self.todchart) 
+        self.tod_chart_save.clicked.connect(partial(self.saveChart, self.todchart, f"tod-chart-{self.filter_start_date_input.date().toString('yyyy-MM-dd')}-{self.filter_end_date_input.date().toString('yyyy-MM-dd')}"))
         self.filter_tab_layout.addStretch(5)
         tab = QWidget()
         tab.setLayout(self.filter_tab_layout)
@@ -412,12 +429,27 @@ class Window(QMainWindow):
                 color: black;
             }
          """)
+
+         # Save chart button
+        self.alcohol_save_figure_box = QGroupBox("Export")
+        self.alcohol_chart_save = QPushButton('Save', self)
+        self.alcohol_chart_save.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        self.alchol_chart_save_layout = QVBoxLayout(self.alcohol_save_figure_box)
+        self.alchol_chart_save_layout.addStretch(2)
+        self.alcohol_save_figure_box.setLayout(self.alchol_chart_save_layout)
+        self.alchol_chart_save_layout.addWidget(self.alcohol_chart_save)
+        self.alcohol_save_figure_box.setStyleSheet("""
+            QGroupBox {
+                color: black;
+            }
+        """)
         
         self.alcohol_input_holder = QGroupBox()
         self.alcohol_input_button_holders = QGridLayout(self)
         self.alcohol_input_button_holders.addWidget(self.alcohol_start_date_input_box, 0, 2, 1, 1)
         self.alcohol_input_button_holders.addWidget(self.alcohol_end_date_input_box, 0, 3, 1, 1)
         self.alcohol_input_button_holders.addWidget(self.alcohol_box, 0, 4, 1, 1)
+        self.alcohol_input_button_holders.addWidget(self.alcohol_save_figure_box, 0, 5, 1, 1)
         self.alcohol_input_holder.setLayout(self.alcohol_input_button_holders)
 
         initial_graph = get_alcohol_incidents(self.alcohol_start_date_input.date(), self.alcohol_end_date_input.date(), self.data)
@@ -454,6 +486,8 @@ class Window(QMainWindow):
         self.alcohol_tab_layout.addWidget(self.alcohol_input_holder)
         self.alcohol_tab_layout.addWidget(self.alcohol_chart)
         self.alcohol_tab_layout.addWidget(self.alcohol_chart_2)
+        self.alcohol_chart_save.clicked.connect(partial(self.saveChart, self.alcohol_chart, f"alcohol-chart-1-{self.alcohol_start_date_input.date().toString('yyyy-MM-dd')}-{self.alcohol_end_date_input.date().toString('yyyy-MM-dd')}"))
+        self.alcohol_chart_save.clicked.connect(partial(self.saveChart, self.alcohol_chart_2, f"alcohol-chart-2-{self.alcohol_start_date_input.date().toString('yyyy-MM-dd')}-{self.alcohol_end_date_input.date().toString('yyyy-MM-dd')}"))
         self.alcohol_tab_layout.addStretch(5)
         tab = QWidget()
         tab.setLayout(self.alcohol_tab_layout)
@@ -501,12 +535,27 @@ class Window(QMainWindow):
                 color: black;
             }
         """)
+
+         # Save chart button
+        self.speed_save_figure_box = QGroupBox("Export")
+        self.speed_chart_save = QPushButton('Save', self)
+        self.speed_chart_save.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        self.speed_chart_save_layout = QVBoxLayout(self.speed_save_figure_box)
+        self.speed_chart_save_layout.addStretch(2)
+        self.speed_save_figure_box.setLayout(self.speed_chart_save_layout)
+        self.speed_chart_save_layout.addWidget(self.speed_chart_save)
+        self.speed_save_figure_box.setStyleSheet("""
+            QGroupBox {
+                color: black;
+            }
+        """)
         # holders for start and end speed dates
         self.speed_search_input_holder = QGroupBox()
         self.speed_input_button_holders = QGridLayout(self)
         self.speed_input_button_holders.addWidget(self.speed_start_date_input_box, 0, 2, 1, 1)
         self.speed_input_button_holders.addWidget(self.speed_end_date_input_box, 0, 3, 1, 1)
         self.speed_input_button_holders.addWidget(self.speed_search_box, 0, 4, 1, 1)
+        self.speed_input_button_holders.addWidget(self.speed_save_figure_box, 0, 5, 1, 1)
         self.speed_search_input_holder.setLayout(self.speed_input_button_holders)
         speed_start_date = self.speed_start_date_input.date().toString('yyyy-MM-dd')
         speed_end_date = self.speed_end_date_input.date().toString('yyyy-MM-dd')
@@ -559,6 +608,7 @@ class Window(QMainWindow):
         self.speed_tab_layout.addWidget(QLabel('Speed'))
         self.speed_tab_layout.addWidget(self.speed_search_input_holder)
         self.speed_tab_layout.addWidget(self.speed_chart)
+        self.speed_chart_save.clicked.connect(partial(self.saveChart, self.speed_chart, f"speed-chart-{self.speed_start_date_input.date().toString('yyyy-MM-dd')}-{self.speed_end_date_input.date().toString('yyyy-MM-dd')}"))
         self.speed_tab_layout.addStretch(5)
         tab = QWidget()
         tab.setLayout(self.speed_tab_layout)
@@ -609,7 +659,6 @@ class Window(QMainWindow):
             ]
             self.search_results_model.appendRow(items)
     
-    
     def homePageResetTable(self):
         # When the user wants to go back to the raw dataset instead of search results
         self.tableView.setModel(self.model)
@@ -655,16 +704,18 @@ class Window(QMainWindow):
  
         # Remove the initial pie chart as it is no longer required.
         self.speed_tab_layout.removeWidget(self.speed_chart)
+        self.speed_chart_save.disconnect()
         # Delete the search results each time, update with new results
         if hasattr(self, 'searched_speed_chart'):
             self.speed_tab_layout.removeWidget(self.searched_speed_chart)
         explode = [0.3, 0, 0,0,0,0,0,0]
         wedges = {'linewidth':0}
-        colors = ['#21E132', '#DB2DCE', '#D22424', '#2542D0', '#D9E72C', '#1BD8D3', '#D68919', '#6624E2']
+        colors = ['#2542D0', '#D22424', '#D68919', '#21E132', '#D9E72C', '#1BD8D3', '#6624E2', '#DB2DCE',]
         # Plot the new chart
         self.searched_speed_chart = PlotCanvas(self, width=10, height=10, dpi=100)
         self.searched_speed_chart.axes.pie(searched_speed_results, labels=self.search_labels, explode=explode, colors=colors, shadow=True, startangle=270, wedgeprops=wedges, autopct='%1.1f%%')
         self.searched_speed_chart.axes.set_title('Number of Accidents per Speed Zone')
+        self.speed_chart_save.clicked.connect(partial(self.saveChart, self.searched_speed_chart, f"search-results-speed-chart-{self.speed_start_date_input.date().toString('yyyy-MM-dd')}-{self.speed_end_date_input.date().toString('yyyy-MM-dd')}"))
         self.speed_tab_layout.addWidget(self.searched_speed_chart)
     
     def todPagePerformFilterSearch(self):
@@ -685,6 +736,8 @@ class Window(QMainWindow):
         self.filtered_tod_chart.axes.set_ylabel("Accidents (total)")
         self.filtered_tod_chart.axes.set_title('Accidents for Each Hour of the Day')
         self.filter_tab_layout.removeWidget(self.todchart) # Delete the initial chart
+        self.tod_chart_save.clicked.disconnect()
+        self.tod_chart_save.clicked.connect(partial(self.saveChart, self.filtered_tod_chart, f"search-results-tod-chart-{self.filter_start_date_input.date().toString('yyyy-MM-dd')}-{self.filter_end_date_input.date().toString('yyyy-MM-dd')}"))
         self.filter_tab_layout.addWidget(self.filtered_tod_chart)
 
     def alcoholPageFilter(self):
@@ -701,7 +754,7 @@ class Window(QMainWindow):
         bar_width = 0.5
         explode = [0.1, 0]
         wedges = {'linewidth':0}
-        colors = ['#21E132', '#DB2DCE']
+        colors = ['#DB2DCE', '#21E132']
 
         # Delete both of the 'searched' charts if they exist, to update with new data
         if hasattr(self, 'searched_alcohol'):
@@ -725,8 +778,18 @@ class Window(QMainWindow):
         self.searched_alcohol_chart_2.axes.set_title('Alcohol Involved Accidents')
         self.alcohol_tab_layout.removeWidget(self.alcohol_chart) # Delete the initial charts
         self.alcohol_tab_layout.removeWidget(self.alcohol_chart_2)
+        self.alcohol_chart_save.disconnect()
+        self.alcohol_chart_save.clicked.connect(partial(self.saveChart, self.searched_alcohol, f"search-results-alcohol-chart-1-{self.alcohol_start_date_input.date().toString('yyyy-MM-dd')}-{self.alcohol_end_date_input.date().toString('yyyy-MM-dd')}"))
+        self.alcohol_chart_save.clicked.connect(partial(self.saveChart, self.searched_alcohol_chart_2, f"search-results-alcohol-chart-2-{self.alcohol_start_date_input.date().toString('yyyy-MM-dd')}-{self.alcohol_end_date_input.date().toString('yyyy-MM-dd')}"))
         self.alcohol_tab_layout.addWidget(self.searched_alcohol)
         self.alcohol_tab_layout.addWidget(self.searched_alcohol_chart_2)
+    
+    ##############
+    # Save chart #
+    ##############
+    # Saving the chart to disk, filename is specified from where the chart comes from
+    def saveChart(self, chart, filename):
+        chart.figure.savefig(f'./{filename}.png')
 
 ###########################
 # Running the application #
