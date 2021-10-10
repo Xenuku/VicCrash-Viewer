@@ -374,7 +374,7 @@ class Window(QMainWindow):
         self.todchart.axes.set_xticks(np.arange(min(rounded_time), max(rounded_time)+1, 1.0))
         self.todchart.axes.set_xlabel("Time (24 hour)")
         self.todchart.axes.set_ylabel("Accidents (total)")
-        self.todchart.axes.set_title('Accidents for Each Hour of the Day')
+        self.todchart.axes.set_title(f"Average Accidents for Each Hour of the Day  \n ({self.filter_start_date_input.date().toString('dd/MM/yyyy')}-{self.filter_end_date_input.date().toString('dd/MM/yyyy')})")
 
        
         self.filter_tab_layout = QVBoxLayout()
@@ -469,7 +469,7 @@ class Window(QMainWindow):
         # Plotting the pie chart to show alcohol vs non alcohol
         self.alcohol_chart = PlotCanvas(self, width=5, height=5, dpi=100)
         self.alcohol_chart.axes.pie(list(initial_graph[1][0]), labels=["Alcohol Involved", "No Alcohol"], explode=explode, colors=colors, shadow=True, startangle=270, wedgeprops=wedges, autopct='%1.1f%%')
-        self.alcohol_chart.axes.set_title('Alcohol vs No Alcohol Accidents')
+        self.alcohol_chart.axes.set_title(f"Alcohol vs No Alcohol Accidents \n ({self.alcohol_start_date_input.date().toString('dd/MM/yyyy')}-{self.alcohol_end_date_input.date().toString('dd/MM/yyyy')})")
 
         # Plotting the bar chart to show amount of accidents involving alcohol by incident type
         self.alcohol_chart_2 = PlotCanvas(self, width=8, height=6, dpi=100)
@@ -479,7 +479,7 @@ class Window(QMainWindow):
         self.alcohol_chart_2.axes.set_ylabel("Amount of Accidents")
         for i, label in enumerate(xlabels):
             label.set_y(label.get_position()[1] - (i % 2) * 0.075)
-        self.alcohol_chart_2.axes.set_title('Alcohol Involved Accidents')
+        self.alcohol_chart_2.axes.set_title(f"Alcohol Involved Accidents \n ({self.alcohol_start_date_input.date().toString('dd/MM/yyyy')}-{self.alcohol_end_date_input.date().toString('dd/MM/yyyy')})")
 
         self.alcohol_tab_layout = QVBoxLayout()
         self.alcohol_tab_layout.addWidget(QLabel('Alcohol'))
@@ -602,7 +602,7 @@ class Window(QMainWindow):
         # Plotting the speed pie chart, exploding the smaller speed zones so they do not overlap
         self.speed_chart = PlotCanvas(self, width=10, height=10, dpi=100)
         self.speed_chart.axes.pie(speed_results, explode=explode, labels=self.speed_labels, colors=colors, shadow=True, startangle=270, wedgeprops=wedges, autopct='%1.1f%%')
-        self.speed_chart.axes.set_title('Number of Accidents per Speed Zone')
+        self.speed_chart.axes.set_title(f"Number of Accidents per Speed Zone \n ({self.speed_start_date_input.date().toString('dd/MM/yyyy')}-{self.speed_end_date_input.date().toString('dd/MM/yyyy')})")
 
         self.speed_tab_layout = QVBoxLayout()
         self.speed_tab_layout.addWidget(QLabel('Speed'))
@@ -714,7 +714,7 @@ class Window(QMainWindow):
         # Plot the new chart
         self.searched_speed_chart = PlotCanvas(self, width=10, height=10, dpi=100)
         self.searched_speed_chart.axes.pie(searched_speed_results, labels=self.search_labels, explode=explode, colors=colors, shadow=True, startangle=270, wedgeprops=wedges, autopct='%1.1f%%')
-        self.searched_speed_chart.axes.set_title('Number of Accidents per Speed Zone')
+        self.searched_speed_chart.axes.set_title(f"Number of Accidents per Speed Zone \n ({self.speed_start_date_input.date().toString('dd/MM/yyyy')}-{self.speed_end_date_input.date().toString('dd/MM/yyyy')})")
         self.speed_chart_save.clicked.connect(partial(self.saveChart, self.searched_speed_chart, f"search-results-speed-chart-{self.speed_start_date_input.date().toString('yyyy-MM-dd')}-{self.speed_end_date_input.date().toString('yyyy-MM-dd')}"))
         self.speed_tab_layout.addWidget(self.searched_speed_chart)
     
@@ -734,7 +734,7 @@ class Window(QMainWindow):
         self.filtered_tod_chart.axes.set_xlabel("Time (24 hour)")
         self.filtered_tod_chart.axes.set_xticks(np.arange(min(rounded_time), max(rounded_time)+1, 1.0))
         self.filtered_tod_chart.axes.set_ylabel("Accidents (total)")
-        self.filtered_tod_chart.axes.set_title('Accidents for Each Hour of the Day')
+        self.filtered_tod_chart.axes.set_title(f"Average Accidents for Each Hour of the Day  \n ({self.filter_start_date_input.date().toString('dd/MM/yyyy')}-{self.filter_end_date_input.date().toString('dd/MM/yyyy')})")
         self.filter_tab_layout.removeWidget(self.todchart) # Delete the initial chart
         self.tod_chart_save.clicked.disconnect()
         self.tod_chart_save.clicked.connect(partial(self.saveChart, self.filtered_tod_chart, f"search-results-tod-chart-{self.filter_start_date_input.date().toString('yyyy-MM-dd')}-{self.filter_end_date_input.date().toString('yyyy-MM-dd')}"))
@@ -765,7 +765,7 @@ class Window(QMainWindow):
         # Plot the new pie chart
         self.searched_alcohol = PlotCanvas(self, width=5, height=5, dpi=100)
         self.searched_alcohol.axes.pie(list(searched_alcohol_results[1][0]), labels=["Alcohol Involved", "No Alcohol"], explode=explode, colors=colors, shadow=True, startangle=270, wedgeprops=wedges, autopct='%1.1f%%')
-        self.searched_alcohol.axes.set_title('Alcohol vs No Alcohol Accidents')
+        self.searched_alcohol.axes.set_title(f"Alcohol vs No Alcohol Accidents \n ({self.alcohol_start_date_input.date().toString('dd/MM/yyyy')}-{self.alcohol_end_date_input.date().toString('dd/MM/yyyy')})")
         
         # Plot the new bar chart
         self.searched_alcohol_chart_2 = PlotCanvas(self, width=8, height=6, dpi=100)
@@ -775,7 +775,7 @@ class Window(QMainWindow):
         self.searched_alcohol_chart_2.axes.set_ylabel("Amount of Accidents")
         for i, label in enumerate(xlabels):
             label.set_y(label.get_position()[1] - (i % 2) * 0.075)
-        self.searched_alcohol_chart_2.axes.set_title('Alcohol Involved Accidents')
+        self.searched_alcohol_chart_2.axes.set_title(f"Alcohol Involved Accidents \n ({self.alcohol_start_date_input.date().toString('dd/MM/yyyy')}-{self.alcohol_end_date_input.date().toString('dd/MM/yyyy')})")
         self.alcohol_tab_layout.removeWidget(self.alcohol_chart) # Delete the initial charts
         self.alcohol_tab_layout.removeWidget(self.alcohol_chart_2)
         self.alcohol_chart_save.disconnect()
