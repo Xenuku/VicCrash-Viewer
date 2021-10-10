@@ -1,14 +1,9 @@
 import unittest
 import sqlite3
-import datetime
-from functions.user_period import find_data
-from functions.time_of_day import get_time_data
-from functions.alcohol_incident import get_alcohol_incidents
 from functions import user_period
 from functions import time_of_day
 from functions import alcohol_incident
 from PyQt5 import QtCore
-import main
 
 
 class TestMain(unittest.TestCase):
@@ -100,26 +95,19 @@ class TestMain(unittest.TestCase):
     def test_load_page_speed(self):
         data = sqlite3.connect('./data/crash.db')
         result = self.speedTest(QtCore.QDate(2013, 7, 1), QtCore.QDate(2019, 3, 21), data)
-        self.assertEqual(len(result), 8)
+        self.assertEqual(len(result), 8) # Make sure 8 results are returned
 
     # Test setting start and end date
     def test_set_dates_speed(self):
         data = sqlite3.connect('./data/crash.db')
         result = self.speedTest(QtCore.QDate(2013, 7, 1), QtCore.QDate(2014, 3, 21), data)
-        self.assertEqual(len(result), 8)
+        self.assertEqual(len(result), 8) # Confirm 8 results returned
 
     # Test setting start date as greater than end date
     def test_date_validity_speed(self):
         data = sqlite3.connect('./data/crash.db')
         result = self.speedTest(QtCore.QDate(2018, 7, 1), QtCore.QDate(2014, 3, 21), data)
-        self.assertEqual(result[0], 0) # Make sure no data exists
-        self.assertEqual(result[1], 0) # Make sure no data exists
-        self.assertEqual(result[2], 0) # Make sure no data exists
-        self.assertEqual(result[3], 0) # Make sure no data exists
-        self.assertEqual(result[4], 0) # Make sure no data exists
-        self.assertEqual(result[5], 0) # Make sure no data exists
-        self.assertEqual(result[6], 0) # Make sure no data exists
-        self.assertEqual(result[7], 0) # Make sure no data exists
+        self.assertEqual(result, [0, 0, 0, 0, 0, 0, 0, 0]) # Make sure no data exists, all entries should be 0
 
 
     # ALCOHOL PAGE FUNCTIONS
@@ -130,7 +118,7 @@ class TestMain(unittest.TestCase):
         result = alcohol_incident.get_alcohol_incidents(QtCore.QDate(2013, 7, 1), QtCore.QDate(2019, 3, 21), data)
         self.assertEqual(len(result[0]), 9) #incidents
         # Should have 9 results
-        self.assertEqual(len(result[1]), 1) #achohol count
+        self.assertEqual(len(result[1]), 1) #alcohol count
         # Should have 1 result
 
     # Test setting start and end date
@@ -139,17 +127,18 @@ class TestMain(unittest.TestCase):
         result = alcohol_incident.get_alcohol_incidents(QtCore.QDate(2015, 7, 1), QtCore.QDate(2017, 3, 21), data)
         self.assertEqual(len(result[0]), 8) #incidents
         # Should have 9 results
-        self.assertEqual(len(result[1]), 1) #achohol count
+        self.assertEqual(len(result[1]), 1) #alcohol count
         # Should have 1 result
 
     # Test setting start date as greater than end date
     def test_date_validity_alcohol(self):
         data = sqlite3.connect('./data/crash.db')
         result = alcohol_incident.get_alcohol_incidents(QtCore.QDate(2017, 1, 15), QtCore.QDate(2016, 1, 15), data)
-        self.assertEqual(len(result[0]), 0) #incidents
-        self.assertEqual(len(result[1]), 1) #achohol count
+        self.assertEqual(len(result[0]), 0) #incidents / Should have 0 incidents
+        self.assertEqual(result[1][0][0], 0) #alcohol count / Making sure it is 0
+        self.assertEqual(result[1][0][1], 0) #alcohol count / Making sure it is 0
 
 
 
 if __name__ == '__main__':
-    unittest.main(verbosity=2)
+    unittest.main(verbosity=2) # Set for a nice 'print' in console when running tests
