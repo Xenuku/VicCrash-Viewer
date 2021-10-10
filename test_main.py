@@ -126,7 +126,7 @@ class TestMain(unittest.TestCase):
         data = sqlite3.connect('./data/crash.db')
         result = alcohol_incident.get_alcohol_incidents(QtCore.QDate(2015, 7, 1), QtCore.QDate(2017, 3, 21), data)
         self.assertEqual(len(result[0]), 8) #incidents
-        # Should have 9 results
+        # Should have 8 results
         self.assertEqual(len(result[1]), 1) #alcohol count
         # Should have 1 result
 
